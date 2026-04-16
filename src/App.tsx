@@ -7,12 +7,15 @@ import RegisterPage from './pages/auth/RegisterPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import DoctorDashboard from './pages/doctor/DoctorDashboard';
 import PatientDashboard from './pages/patient/PatientDashboard';
+import LandingPage from './pages/LandingPage';
+import ProfilePage from './pages/profile/ProfilePage';
 
 const App: React.FC = () => (
   <AuthProvider>
     <Router>
       <Routes>
         {/* Public routes */}
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
@@ -22,11 +25,21 @@ const App: React.FC = () => (
             <AdminDashboard />
           </ProtectedRoute>
         } />
+        <Route path="/admin/profile" element={
+          <ProtectedRoute role="Admin">
+            <ProfilePage />
+          </ProtectedRoute>
+        } />
 
         {/* Doctor routes */}
         <Route path="/doctor/*" element={
           <ProtectedRoute role="Doctor">
             <DoctorDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/doctor/profile" element={
+          <ProtectedRoute role="Doctor">
+            <ProfilePage />
           </ProtectedRoute>
         } />
 
@@ -36,10 +49,14 @@ const App: React.FC = () => (
             <PatientDashboard />
           </ProtectedRoute>
         } />
+        <Route path="/patient/profile" element={
+          <ProtectedRoute role="Patient">
+            <ProfilePage />
+          </ProtectedRoute>
+        } />
 
-        {/* Default redirect */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* Catch-all */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   </AuthProvider>

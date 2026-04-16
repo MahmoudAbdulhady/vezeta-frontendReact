@@ -88,10 +88,21 @@ export interface IPatientRegisterForm {
   gender: number;
 }
 
+// ─── Specialization ──────────────────────────────────────────────────────────
+export interface ISpecializationDTO {
+  specializationId: number;
+  specializationName: string;
+}
+
 // ─── Doctor ──────────────────────────────────────────────────────────────────
+export interface ITimeSlotInfoDTO {
+  display: string;       // "09:00 TO 10:00"
+  appointmentId: number;
+}
+
 export interface IDayScheduleDTO {
   day: string;
-  timeSlots: string[];
+  timeSlots: ITimeSlotInfoDTO[];
 }
 
 export interface IAppointmentDTO {
@@ -102,6 +113,7 @@ export interface IAppointmentDTO {
 }
 
 export interface IDoctorBookingDTO {
+  bookingId: number;
   patientName: string;
   age: string;
   phoneNumber: string;
@@ -134,6 +146,7 @@ export interface IUpdateAppointmentDTO {
 
 // ─── Patient ─────────────────────────────────────────────────────────────────
 export interface IPatientBookingDTO {
+  bookingId: number;
   doctorName: string;
   price: string;
   specailization: string;
@@ -163,4 +176,23 @@ export interface ICouponUpdateDTO {
   couponName?: string;
   couponCode?: number;
   isActive?: boolean;
+}
+
+// ─── Profile ─────────────────────────────────────────────────────────────────
+export interface IProfileDTO {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  gender: string;
+  dateOfBirth: string;
+  imageUrl?: string;
+}
+
+export interface IUpdateProfileDTO {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  gender: number; // 0 = Female, 1 = Male
+  dateOfBirth: string;
+  imageUrl?: File | null;
 }

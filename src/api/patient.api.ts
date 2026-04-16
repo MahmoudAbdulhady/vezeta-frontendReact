@@ -6,6 +6,8 @@ import type {
   IAppointmentDTO,
   IPatientBookingDTO,
   ICreateBookingDTO,
+  IProfileDTO,
+  IUpdateProfileDTO,
 } from '../models';
 
 export const patientLogin = (data: ILoginRequest) =>
@@ -45,3 +47,19 @@ export const cancelBooking = (bookingId: number) =>
 
 export const getMyBookings = () =>
   axiosClient.get<IPatientBookingDTO[]>('/api/Patient/MyBookings');
+
+export const getMyProfile = () =>
+  axiosClient.get<IProfileDTO>('/api/Patient/MyProfile');
+
+export const updateMyProfile = (form: IUpdateProfileDTO) => {
+  const fd = new FormData();
+  fd.append('FirstName', form.firstName);
+  fd.append('LastName', form.lastName);
+  fd.append('PhoneNumber', form.phoneNumber);
+  fd.append('Gender', String(form.gender));
+  fd.append('DateOfBirth', form.dateOfBirth);
+  if (form.imageUrl) fd.append('ImageUrl', form.imageUrl);
+  return axiosClient.put('/api/Patient/UpdateProfile', fd, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+};

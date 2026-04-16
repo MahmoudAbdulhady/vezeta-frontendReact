@@ -3,7 +3,7 @@ import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner';
 import { getDoctorAppointments, getMyBookings, bookAppointment, cancelBooking } from '../../api/patient.api';
-import type { IAppointmentDTO, IPatientBookingDTO } from '../../models';
+import type { IAppointmentDTO, IPatientBookingDTO, ITimeSlotInfoDTO } from '../../models';
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 const PatientSidebar: React.FC = () => {
@@ -12,6 +12,7 @@ const PatientSidebar: React.FC = () => {
     { to: '/patient/dashboard', icon: 'bi-grid-1x2', label: 'Dashboard' },
     { to: '/patient/find-doctors', icon: 'bi-search-heart', label: 'Find Doctors' },
     { to: '/patient/my-bookings', icon: 'bi-calendar-check', label: 'My Bookings' },
+    { to: '/patient/profile', icon: 'bi-person-circle', label: 'My Profile' },
   ];
   return (
     <div className="sidebar d-none d-md-block">
@@ -157,7 +158,7 @@ const PatientFindDoctors: React.FC = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
-  const [bookingModal, setBookingModal] = useState<{ apt: IAppointmentDTO; dayIdx: number; timeIdx: number } | null>(null);
+  const [bookingModal, setBookingModal] = useState<{ apt: IAppointmentDTO; dayIdx: number; timeIdx: number; appointmentId: number } | null>(null);
   const [coupon, setCoupon] = useState('');
   const [bookingLoading, setBookingLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -176,7 +177,7 @@ const PatientFindDoctors: React.FC = () => {
     if (!bookingModal) return;
     setBookingLoading(true);
     try {
-      await bookAppointment({ appointmentId: page, couponName: coupon || undefined });
+      await bookAppointment({ appointmentId: bookingModal.appointmentId, couponName: coupon || undefined });
       setSuccessMsg('Appointment booked successfully!');
       setBookingModal(null);
       setCoupon('');
@@ -248,8 +249,8 @@ const PatientFindDoctors: React.FC = () => {
                           {day.timeSlots?.slice(0, 4).map((slot, ti) => (
                             <button key={ti} className="btn btn-sm"
                               style={{ fontSize: 11, padding: '3px 10px', borderRadius: 20, border: '1px solid #2563eb', color: '#2563eb', background: 'transparent' }}
-                              onClick={() => setBookingModal({ apt, dayIdx: di, timeIdx: ti })}>
-                              {slot}
+                              onClick={() => setBookingModal({ apt, dayIdx: di, timeIdx: ti, appointmentId: slot.appointmentId })}>
+                              {slot.display}
                             </button>
                           ))}
                         </div>
@@ -289,7 +290,7 @@ const PatientFindDoctors: React.FC = () => {
                   <div style={{ fontSize: 13, color: '#64748b' }}>
                     {bookingModal.apt.specailization} •{' '}
                     {bookingModal.apt.availableDay?.[bookingModal.dayIdx]?.day}{' '}
-                    {bookingModal.apt.availableDay?.[bookingModal.dayIdx]?.timeSlots?.[bookingModal.timeIdx]}
+                    {bookingModal.apt.availableDay?.[bookingModal.dayIdx]?.timeSlots?.[bookingModal.timeIdx]?.display}
                   </div>
                   {bookingModal.apt.price && (
                     <div style={{ fontSize: 14, fontWeight: 600, color: '#10b981', marginTop: 4 }}>
@@ -409,10 +410,10 @@ const PatientMyBookings: React.FC = () => {
                 {b.bookingStatus?.toLowerCase() === 'pending' && (
                   <button
                     className="btn btn-sm btn-outline-danger rounded-pill px-3"
-                    onClick={() => handleCancel(i + 1)}
-                    disabled={cancelingId === i + 1}
+                    onClick={() => handleCancel(b.bookingId)}
+                    disabled={cancelingId === b.bookingId}
                   >
-                    {cancelingId === i + 1
+                    {cancelingId === b.bookingId
                       ? <span className="spinner-border spinner-border-sm"></span>
                       : <><i className="bi bi-x-circle me-1"></i>Cancel</>}
                   </button>

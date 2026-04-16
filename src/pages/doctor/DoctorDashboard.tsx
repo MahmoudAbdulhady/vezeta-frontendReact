@@ -14,6 +14,7 @@ const DoctorSidebar: React.FC = () => {
     { to: '/doctor/dashboard', icon: 'bi-grid-1x2', label: 'Overview' },
     { to: '/doctor/appointments', icon: 'bi-calendar-check', label: 'My Appointments' },
     { to: '/doctor/schedule', icon: 'bi-clock-history', label: 'Manage Schedule' },
+    { to: '/doctor/profile', icon: 'bi-person-circle', label: 'My Profile' },
   ];
   return (
     <div className="sidebar d-none d-md-block">
@@ -42,10 +43,8 @@ const DoctorOverview: React.FC = () => {
 
   if (loading) return <LoadingSpinner text="Loading your dashboard..." />;
 
-  const today = bookings.filter(b => {
-    const d = new Date(b.day);
-    return d.toDateString() === new Date().toDateString();
-  });
+  const todayName = WEEK_DAYS[new Date().getDay()];
+  const today = bookings.filter(b => b.day === todayName);
 
   return (
     <div>
@@ -167,10 +166,10 @@ const DoctorAppointments: React.FC = () => {
                       <td>
                         <button
                           className="btn btn-sm btn-outline-success rounded-pill"
-                          onClick={() => handleConfirm(i + 1)}
-                          disabled={confirmingId === i + 1}
+                          onClick={() => handleConfirm(b.bookingId)}
+                          disabled={confirmingId === b.bookingId || b.bookingId === 0}
                         >
-                          {confirmingId === i + 1
+                          {confirmingId === b.bookingId
                             ? <span className="spinner-border spinner-border-sm"></span>
                             : <><i className="bi bi-check-circle me-1"></i>Complete</>}
                         </button>
@@ -204,7 +203,6 @@ const DoctorSchedule: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
-  const [doctorId, setDoctorId] = useState(0);
   const [price, setPrice] = useState(0);
   const [slots, setSlots] = useState([{ day: 0, startTime: '', endTime: '' }]);
 
@@ -223,7 +221,7 @@ const DoctorSchedule: React.FC = () => {
         grouped[s.day].push({ startTime: s.startTime, endTime: s.endTime });
       });
       await addAppointment({
-        doctorId,
+        doctorId: 0, // backend overrides with JWT-derived doctor ID
         price,
         dayAppointments: Object.entries(grouped).map(([day, times]) => ({
           day: Number(day),
@@ -272,12 +270,7 @@ const DoctorSchedule: React.FC = () => {
               <div className="modal-body">
                 <form onSubmit={handleSubmit}>
                   <div className="row g-3 mb-4">
-                    <div className="col-6">
-                      <label className="form-label">Doctor ID</label>
-                      <input type="number" className="form-control" required value={doctorId || ''}
-                        onChange={e => setDoctorId(Number(e.target.value))} placeholder="Your doctor ID" />
-                    </div>
-                    <div className="col-6">
+                    <div className="col-12">
                       <label className="form-label">Price per slot ($)</label>
                       <input type="number" className="form-control" required value={price || ''}
                         onChange={e => setPrice(Number(e.target.value))} placeholder="e.g. 100" />

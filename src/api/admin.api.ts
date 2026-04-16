@@ -5,6 +5,9 @@ import type {
   IDoctorDTO, IPatientDTO,
   ITopSpecialization, ITopDoctor, IRequestsDTO,
   IDoctorRegisterForm,
+  IProfileDTO,
+  IUpdateProfileDTO,
+  ISpecializationDTO,
 } from '../models';
 
 // ─── Admin Login (via Doctor endpoint used by admin role) ────────────────────
@@ -62,3 +65,31 @@ export const getTopDoctors = () =>
 
 export const getRequestStats = () =>
   axiosClient.get<IRequestsDTO>('/api/Admin/GetNumberOfRequests');
+
+// ─── Specializations ─────────────────────────────────────────────────────────
+export const getAllSpecializations = () =>
+  axiosClient.get<ISpecializationDTO[]>('/api/Admin/GetAllSpecializations');
+
+export const addSpecialization = (name: string) =>
+  axiosClient.post<ISpecializationDTO>('/api/Admin/AddSpecialization', JSON.stringify(name), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+export const deleteSpecialization = (id: number) =>
+  axiosClient.delete(`/api/Admin/DeleteSpecialization/${id}`);
+
+export const getAdminMyProfile = () =>
+  axiosClient.get<IProfileDTO>('/api/Admin/MyProfile');
+
+export const updateAdminMyProfile = (form: IUpdateProfileDTO) => {
+  const fd = new FormData();
+  fd.append('FirstName', form.firstName);
+  fd.append('LastName', form.lastName);
+  fd.append('PhoneNumber', form.phoneNumber);
+  fd.append('Gender', String(form.gender));
+  fd.append('DateOfBirth', form.dateOfBirth);
+  if (form.imageUrl) fd.append('ImageUrl', form.imageUrl);
+  return axiosClient.put('/api/Admin/UpdateProfile', fd, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+};

@@ -6,8 +6,9 @@ import {
   getNumOfDoctors, getTotalPatients, getRequestStats,
   getTopSpecializations, getTopDoctors, getNumOfDoctorsLast24h,
   getAllDoctors, getAllPatients, deleteDoctorById, addDoctor,
+  getAllSpecializations, addSpecialization, deleteSpecialization,
 } from '../../api/admin.api';
-import type { ITopSpecialization, ITopDoctor, IRequestsDTO, IDoctorDTO, IPatientDTO, IDoctorRegisterForm } from '../../models';
+import type { ITopSpecialization, ITopDoctor, IRequestsDTO, IDoctorDTO, IPatientDTO, IDoctorRegisterForm, ISpecializationDTO } from '../../models';
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 const AdminSidebar: React.FC = () => {
@@ -17,6 +18,8 @@ const AdminSidebar: React.FC = () => {
     { to: '/admin/doctors', icon: 'bi-heart-pulse', label: 'Doctors' },
     { to: '/admin/patients', icon: 'bi-people', label: 'Patients' },
     { to: '/admin/coupons', icon: 'bi-tag', label: 'Coupons' },
+    { to: '/admin/specializations', icon: 'bi-hospital', label: 'Specializations' },
+    { to: '/admin/profile', icon: 'bi-person-circle', label: 'My Profile' },
   ];
   return (
     <div className="sidebar d-none d-md-block">
@@ -175,8 +178,9 @@ const AdminDoctors: React.FC = () => {
   const [formError, setFormError] = useState('');
   const [form, setForm] = useState<IDoctorRegisterForm>({
     email: '', password: '', firstName: '', lastName: '',
-    specialization: '', phoneNumber: '', dateOfBirth: '', imageUrl: null, gender: 0,
+    specialization: '', phoneNumber: '', dateOfBirth: '', imageUrl: null, gender: 1,
   });
+  const [specializations, setSpecializations] = useState<ISpecializationDTO[]>([]);
   const pageSize = 10;
 
   const load = () => {
@@ -187,6 +191,12 @@ const AdminDoctors: React.FC = () => {
   };
 
   useEffect(() => { load(); }, [page, search]);
+
+  useEffect(() => {
+    getAllSpecializations()
+      .then(r => setSpecializations(r.data))
+      .catch(() => {/* non-critical */});
+  }, []);
 
   const handleDelete = async (email: string, idx: number) => {
     if (!confirm(`Delete doctor ${email}?`)) return;
@@ -327,11 +337,21 @@ const AdminDoctors: React.FC = () => {
                     </div>
                     <div className="col-6">
                       <label className="form-label">Specialization</label>
-                      <input className="form-control" required value={form.specialization} onChange={e => setF('specialization', e.target.value)} placeholder="e.g. Cardiology" />
+                      <select className="form-select" required value={form.specialization} onChange={e => setF('specialization', e.target.value)}>
+                        <option value="">— Select specialization —</option>
+                        {specializations.map(s => (
+                          <option key={s.specializationId} value={s.specializationName}>
+                            {s.specializationName}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div className="col-6">
                       <label className="form-label">Phone Number</label>
-                      <input className="form-control" required value={form.phoneNumber} onChange={e => setF('phoneNumber', e.target.value)} placeholder="+1234567890" />
+                      <input className="form-control" required value={form.phoneNumber} onChange={e => setF('phoneNumber', e.target.value)}
+                        placeholder="01012345678" maxLength={13}
+                        pattern="^(\+?20)?01[0125]\d{8}$"
+                        title="Egyptian number: 010, 011, 012, or 015" />
                     </div>
                     <div className="col-6">
                       <label className="form-label">Date of Birth</label>
@@ -340,8 +360,8 @@ const AdminDoctors: React.FC = () => {
                     <div className="col-6">
                       <label className="form-label">Gender</label>
                       <select className="form-select" value={form.gender} onChange={e => setF('gender', Number(e.target.value))}>
-                        <option value={0}>Male</option>
-                        <option value={1}>Female</option>
+                        <option value={1}>Male</option>
+                        <option value={0}>Female</option>
                       </select>
                     </div>
                     <div className="col-12">
@@ -544,6 +564,134 @@ const AdminCoupons: React.FC = () => {
   );
 };
 
+// ─── Specializations Management ───────────────────────────────────────────────
+const AdminSpecializations: React.FC = () => {
+  const [specs, setSpecs] = useState<ISpecializationDTO[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newName, setNewName] = useState('');
+  const [adding, setAdding] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const load = () => {
+    setLoading(true);
+    getAllSpecializations()
+      .then(r => setSpecs(r.data))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newName.trim()) return;
+    setError('');
+    setAdding(true);
+    try {
+      await addSpecialization(newName.trim());
+      setSuccess(`"${newName.trim()}" added successfully.`);
+      setNewName('');
+      load();
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: unknown } };
+      setError(typeof axiosErr.response?.data === 'string' ? axiosErr.response.data : 'Failed to add specialization.');
+    } finally { setAdding(false); }
+  };
+
+  const handleDelete = async (id: number, name: string) => {
+    if (!confirm(`Delete "${name}"? Doctors assigned to it must be reassigned first.`)) return;
+    setDeletingId(id);
+    try {
+      await deleteSpecialization(id);
+      setSuccess(`"${name}" deleted.`);
+      load();
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: unknown } };
+      setError(typeof axiosErr.response?.data === 'string' ? axiosErr.response.data : 'Failed to delete specialization.');
+    } finally { setDeletingId(null); }
+  };
+
+  return (
+    <div>
+      <div className="page-header">
+        <h2 className="section-title">Specializations</h2>
+        <p className="section-subtitle">Manage the specializations doctors can be assigned to</p>
+      </div>
+
+      {error && (
+        <div className="alert alert-danger d-flex align-items-center gap-2" style={{ borderRadius: 12 }}>
+          <i className="bi bi-exclamation-circle-fill"></i>{error}
+          <button className="btn-close ms-auto" onClick={() => setError('')}></button>
+        </div>
+      )}
+      {success && (
+        <div className="alert alert-success d-flex align-items-center gap-2" style={{ borderRadius: 12 }}>
+          <i className="bi bi-check-circle-fill"></i>{success}
+          <button className="btn-close ms-auto" onClick={() => setSuccess('')}></button>
+        </div>
+      )}
+
+      {/* Add form */}
+      <div className="veezta-card p-4 mb-4">
+        <h6 style={{ fontFamily: 'Sora', fontWeight: 600, marginBottom: 16 }}>
+          <i className="bi bi-plus-circle me-2 text-primary"></i>Add Specialization
+        </h6>
+        <form onSubmit={handleAdd} className="d-flex gap-2">
+          <input
+            className="form-control"
+            placeholder="e.g. Cardiology"
+            value={newName}
+            onChange={e => setNewName(e.target.value)}
+            style={{ maxWidth: 320 }}
+          />
+          <button type="submit" className="btn btn-primary rounded-pill px-4" disabled={adding || !newName.trim()}>
+            {adding ? <span className="spinner-border spinner-border-sm me-2"></span> : <i className="bi bi-plus-lg me-1"></i>}
+            Add
+          </button>
+        </form>
+      </div>
+
+      {/* List */}
+      <div className="veezta-card p-4">
+        <h6 style={{ fontFamily: 'Sora', fontWeight: 600, marginBottom: 16 }}>
+          <i className="bi bi-list-ul me-2 text-primary"></i>All Specializations ({specs.length})
+        </h6>
+        {loading ? <LoadingSpinner /> : (
+          <div className="row g-2">
+            {specs.length === 0 ? (
+              <div className="col-12 text-center py-4" style={{ color: '#94a3b8' }}>
+                <i className="bi bi-inbox" style={{ fontSize: 40 }}></i>
+                <p className="mt-2 mb-0">No specializations yet. Add one above.</p>
+              </div>
+            ) : specs.map(s => (
+              <div key={s.specializationId} className="col-md-4 col-lg-3">
+                <div className="d-flex align-items-center justify-content-between p-3"
+                  style={{ background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+                  <span style={{ fontWeight: 500, fontSize: 14 }}>
+                    <i className="bi bi-hospital me-2 text-primary" style={{ fontSize: 13 }}></i>
+                    {s.specializationName}
+                  </span>
+                  <button
+                    className="btn btn-sm btn-outline-danger"
+                    style={{ borderRadius: 8, padding: '2px 8px' }}
+                    disabled={deletingId === s.specializationId}
+                    onClick={() => handleDelete(s.specializationId, s.specializationName)}
+                  >
+                    {deletingId === s.specializationId
+                      ? <span className="spinner-border spinner-border-sm"></span>
+                      : <i className="bi bi-trash3"></i>}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // ─── Admin Dashboard Root ─────────────────────────────────────────────────────
 const AdminDashboard: React.FC = () => (
   <div>
@@ -556,6 +704,7 @@ const AdminDashboard: React.FC = () => (
           <Route path="doctors" element={<AdminDoctors />} />
           <Route path="patients" element={<AdminPatients />} />
           <Route path="coupons" element={<AdminCoupons />} />
+          <Route path="specializations" element={<AdminSpecializations />} />
           <Route path="*" element={<AdminOverview />} />
         </Routes>
       </div>
