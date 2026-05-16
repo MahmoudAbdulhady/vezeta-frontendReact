@@ -8,7 +8,9 @@ import {
   getAllDoctors, getAllPatients, deleteDoctorById, addDoctor,
   getAllSpecializations, addSpecialization, deleteSpecialization,
 } from '../../api/admin.api';
-import type { ITopSpecialization, ITopDoctor, IRequestsDTO, IDoctorDTO, IPatientDTO, IDoctorRegisterForm, ISpecializationDTO } from '../../models';
+import { getAllCoupons, createCoupon, deactivateCoupon, deleteCoupon } from '../../api/coupon.api';
+import { getImageUrl } from '../../api/axiosClient';
+import type { ITopSpecialization, ITopDoctor, IRequestsDTO, IDoctorDTO, IPatientDTO, IDoctorRegisterForm, ISpecializationDTO, ICouponDTO } from '../../models';
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 const AdminSidebar: React.FC = () => {
@@ -148,7 +150,7 @@ const AdminOverview: React.FC = () => {
                 </div>
                 <div className="avatar" style={{ width: 36, height: 36, flexShrink: 0 }}>
                   {d.image
-                    ? <img src={d.image} alt={d.fullName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                    ? <img src={getImageUrl(d.image)!} alt={d.fullName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                     : <span style={{ color: 'white', fontWeight: 700, fontSize: 13 }}>{d.fullName[0]}</span>
                   }
                 </div>
@@ -264,7 +266,7 @@ const AdminDoctors: React.FC = () => {
                       <div className="d-flex align-items-center gap-3">
                         <div className="avatar" style={{ width: 38, height: 38 }}>
                           {d.imageUrl
-                            ? <img src={d.imageUrl} alt={d.fullName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                            ? <img src={getImageUrl(d.imageUrl)!} alt={d.fullName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                             : <span style={{ color: 'white', fontWeight: 700, fontSize: 14 }}>{d.fullName[0]}</span>
                           }
                         </div>
@@ -439,7 +441,7 @@ const AdminPatients: React.FC = () => {
                         <div className="d-flex align-items-center gap-3">
                           <div className="avatar" style={{ width: 38, height: 38 }}>
                             {p.imageUrl
-                              ? <img src={p.imageUrl} alt={p.fullName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                              ? <img src={getImageUrl(p.imageUrl)!} alt={p.fullName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                               : <span style={{ color: 'white', fontWeight: 700, fontSize: 14 }}>{p.fullName[0]}</span>
                             }
                           </div>
@@ -479,24 +481,62 @@ const AdminPatients: React.FC = () => {
 };
 
 // ─── Coupon Management ────────────────────────────────────────────────────────
+const DISCOUNT_OPTIONS = [
+  { value: 50, label: 'Fifty (50)' },
+  { value: 100, label: 'One Hundred (100)' },
+];
+
 const AdminCoupons: React.FC = () => {
-  const createC = (data: { couponName: string; couponCode: number; isActive: boolean }) =>
-    import('../../api/coupon.api').then(m => m.createCoupon(data));
+  const [coupons, setCoupons] = useState<ICouponDTO[]>([]);
+  const [listLoading, setListLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ couponName: '', couponCode: 0, isActive: true });
+  const [form, setForm] = useState({ couponName: '', couponCode: 50, isActive: true });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+  const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
+
+  const loadCoupons = () => {
+    setListLoading(true);
+    getAllCoupons()
+      .then(r => setCoupons(r.data))
+      .catch(() => setError('Failed to load coupons.'))
+      .finally(() => setListLoading(false));
+  };
+
+  useEffect(() => { loadCoupons(); }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
     try {
-      await createC(form);
+      await createCoupon(form);
       setSuccess(`Coupon "${form.couponName}" created successfully!`);
       setShowModal(false);
-      setForm({ couponName: '', couponCode: 0, isActive: true });
-    } catch { /* handled */ }
+      setForm({ couponName: '', couponCode: 50, isActive: true });
+      loadCoupons();
+    } catch { setError('Failed to create coupon.'); }
     finally { setLoading(false); }
+  };
+
+  const handleDeactivate = async (id: number) => {
+    setActionLoadingId(id);
+    try {
+      await deactivateCoupon(id);
+      loadCoupons();
+    } catch { setError('Failed to deactivate coupon.'); }
+    finally { setActionLoadingId(null); }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Delete this coupon permanently?')) return;
+    setActionLoadingId(id);
+    try {
+      await deleteCoupon(id);
+      loadCoupons();
+    } catch { setError('Failed to delete coupon.'); }
+    finally { setActionLoadingId(null); }
   };
 
   return (
@@ -510,16 +550,78 @@ const AdminCoupons: React.FC = () => {
           <i className="bi bi-plus-lg me-2"></i>New Coupon
         </button>
       </div>
+
       {success && (
         <div className="alert alert-success d-flex align-items-center gap-2" style={{ borderRadius: 12 }}>
           <i className="bi bi-check-circle-fill"></i>{success}
           <button className="btn-close ms-auto" onClick={() => setSuccess('')}></button>
         </div>
       )}
-      <div className="veezta-card p-4 text-center" style={{ color: '#94a3b8' }}>
-        <i className="bi bi-tag" style={{ fontSize: 48 }}></i>
-        <p className="mt-3">Coupon list is managed server-side. Use the button above to create new coupons.</p>
-      </div>
+      {error && (
+        <div className="alert alert-danger d-flex align-items-center gap-2" style={{ borderRadius: 12 }}>
+          <i className="bi bi-exclamation-triangle-fill"></i>{error}
+          <button className="btn-close ms-auto" onClick={() => setError('')}></button>
+        </div>
+      )}
+
+      {listLoading ? <LoadingSpinner text="Loading coupons..." /> : (
+        <div className="veezta-card p-4">
+          {coupons.length === 0 ? (
+            <div className="text-center py-5" style={{ color: '#94a3b8' }}>
+              <i className="bi bi-tag" style={{ fontSize: 48 }}></i>
+              <p className="mt-3">No coupons yet. Create your first one above.</p>
+            </div>
+          ) : (
+            <div className="table-responsive">
+              <table className="table align-middle mb-0">
+                <thead>
+                  <tr style={{ fontSize: 13, color: '#64748b' }}>
+                    <th>Name</th>
+                    <th>Code Value</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {coupons.map(c => (
+                    <tr key={c.couponId}>
+                      <td style={{ fontWeight: 600 }}>{c.couponName}</td>
+                      <td>{c.code}</td>
+                      <td>
+                        <span className={`badge rounded-pill ${c.isActive ? 'bg-success' : 'bg-secondary'}`}>
+                          {c.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="d-flex gap-2">
+                          {c.isActive && (
+                            <button
+                              className="btn btn-sm btn-outline-warning rounded-pill"
+                              disabled={actionLoadingId === c.couponId}
+                              onClick={() => handleDeactivate(c.couponId)}
+                            >
+                              {actionLoadingId === c.couponId
+                                ? <span className="spinner-border spinner-border-sm"></span>
+                                : <><i className="bi bi-pause-circle me-1"></i>Deactivate</>}
+                            </button>
+                          )}
+                          <button
+                            className="btn btn-sm btn-outline-danger rounded-pill"
+                            disabled={actionLoadingId === c.couponId}
+                            onClick={() => handleDelete(c.couponId)}
+                          >
+                            <i className="bi bi-trash me-1"></i>Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
       {showModal && (
         <div className="modal d-block" style={{ background: 'rgba(0,0,0,0.5)' }}>
@@ -533,14 +635,17 @@ const AdminCoupons: React.FC = () => {
                 <form onSubmit={handleCreate}>
                   <div className="mb-3">
                     <label className="form-label">Coupon Name</label>
-                    <input className="form-control" required value={form.couponName} onChange={e => setForm(f => ({ ...f, couponName: e.target.value }))} placeholder="e.g. SUMMER20" />
+                    <input className="form-control" required value={form.couponName}
+                      onChange={e => setForm(f => ({ ...f, couponName: e.target.value }))}
+                      placeholder="e.g. SUMMER20" />
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Discount Code</label>
-                    <select className="form-select" value={form.couponCode} onChange={e => setForm(f => ({ ...f, couponCode: Number(e.target.value) }))}>
-                      <option value={0}>10% Off</option>
-                      <option value={1}>20% Off</option>
-                      <option value={2}>30% Off</option>
+                    <select className="form-select" value={form.couponCode}
+                      onChange={e => setForm(f => ({ ...f, couponCode: Number(e.target.value) }))}>
+                      {DISCOUNT_OPTIONS.map(o => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="form-check mb-3">

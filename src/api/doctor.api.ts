@@ -9,6 +9,7 @@ import type {
   IProfileDTO,
   IUpdateProfileDTO,
   ISpecializationDTO,
+  IDoctorScheduleSlotDTO,
 } from '../models';
 
 export const getSpecializations = () =>
@@ -37,6 +38,9 @@ export const getMyAppointments = (params: IPaginationRequest) =>
   axiosClient.get<{ appointments: IDoctorBookingDTO[]; totalCounts: number }>(
     '/api/Doctor/GetMyAppointments', { params }
   );
+
+export const getMySchedule = () =>
+  axiosClient.get<IDoctorScheduleSlotDTO[]>('/api/Doctor/GetMySchedule');
 
 export const addAppointment = (data: IAddAppointmentDTO) =>
   axiosClient.post('/api/Doctor/AddAppointment', data);

@@ -1,10 +1,26 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { getMyProfile } from '../../api/patient.api';
+import { getDoctorMyProfile } from '../../api/doctor.api';
+import { getAdminMyProfile } from '../../api/admin.api';
+import { getImageUrl } from '../../api/axiosClient';
 
 const Navbar: React.FC = () => {
   const { user, role, logout } = useAuth();
   const navigate = useNavigate();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user || !role) return;
+    const fetchAvatar = () => {
+      const fn = role === 'Doctor' ? getDoctorMyProfile : role === 'Admin' ? getAdminMyProfile : getMyProfile;
+      fn().then(res => setAvatarUrl(getImageUrl(res.data.imageUrl))).catch(() => {});
+    };
+    fetchAvatar();
+    window.addEventListener('profile-updated', fetchAvatar);
+    return () => window.removeEventListener('profile-updated', fetchAvatar);
+  }, [user, role]);
 
   const handleLogout = () => {
     logout();
@@ -51,13 +67,18 @@ const Navbar: React.FC = () => {
                   </Link>
                 </li>
                 <li className="nav-item d-flex align-items-center gap-2 px-3">
-                  <div style={{
-                    width: 34, height: 34, borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #2563eb, #06b6d4)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center'
-                  }}>
-                    <i className="bi bi-person-fill text-white" style={{ fontSize: 16 }}></i>
-                  </div>
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="avatar"
+                      style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover', border: '2px solid #e9ecef' }} />
+                  ) : (
+                    <div style={{
+                      width: 34, height: 34, borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #2563eb, #06b6d4)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                      <i className="bi bi-person-fill text-white" style={{ fontSize: 16 }}></i>
+                    </div>
+                  )}
                   <div className="d-none d-lg-block">
                     <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', lineHeight: 1.2 }}>
                       {user.fullName || user.email}

@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner';
-import { getMyAppointments, addAppointment, deleteAppointment, confirmCheckup } from '../../api/doctor.api';
-import type { IDoctorBookingDTO } from '../../models';
+import { getMyAppointments, addAppointment, deleteAppointment, confirmCheckup, getMySchedule } from '../../api/doctor.api';
+import { getImageUrl } from '../../api/axiosClient';
+import type { IDoctorBookingDTO, IDoctorScheduleSlotDTO } from '../../models';
 
 const WEEK_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -88,7 +89,7 @@ const DoctorOverview: React.FC = () => {
               <div key={i} className="col-md-6">
                 <div style={{ background: '#f8fafc', borderRadius: 12, padding: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div className="avatar" style={{ width: 44, height: 44 }}>
-                    {b.image ? <img src={b.image} alt={b.patientName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                    {b.image ? <img src={getImageUrl(b.image)!} alt={b.patientName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                       : <span style={{ color: 'white', fontWeight: 700 }}>{b.patientName[0]}</span>}
                   </div>
                   <div>
@@ -124,10 +125,13 @@ const DoctorAppointments: React.FC = () => {
 
   useEffect(() => { load(); }, [page]);
 
-  const handleConfirm = async (idx: number) => {
-    setConfirmingId(idx);
+  const handleConfirm = async (bookingId: number) => {
+    setConfirmingId(bookingId);
     try {
-      await confirmCheckup(idx);
+      await confirmCheckup(bookingId);
+      load();
+    } catch {
+      // silently reload so the latest status is always shown
       load();
     } finally {
       setConfirmingId(null);
@@ -144,38 +148,50 @@ const DoctorAppointments: React.FC = () => {
         {loading ? <LoadingSpinner /> : (
           <div className="table-responsive">
             <table className="table veezta-table mb-0">
-              <thead><tr><th>Patient</th><th>Day</th><th>Time</th><th>Phone</th><th>Age</th><th>Action</th></tr></thead>
+              <thead><tr><th>Patient</th><th>Day</th><th>Time</th><th>Phone</th><th>Age</th><th>Status</th><th>Action</th></tr></thead>
               <tbody>
                 {bookings.length === 0
-                  ? <tr><td colSpan={6} className="text-center py-4 text-muted">No appointments yet.</td></tr>
-                  : bookings.map((b, i) => (
-                    <tr key={i}>
-                      <td>
-                        <div className="d-flex align-items-center gap-3">
-                          <div className="avatar" style={{ width: 38, height: 38 }}>
-                            {b.image ? <img src={b.image} alt={b.patientName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
-                              : <span style={{ color: 'white', fontWeight: 700, fontSize: 14 }}>{b.patientName[0]}</span>}
+                  ? <tr><td colSpan={7} className="text-center py-4 text-muted">No appointments yet.</td></tr>
+                  : bookings.map((b, i) => {
+                    const status = b.bookingStatus?.toLowerCase();
+                    const isPending = status === 'pending';
+                    const statusClass = status === 'completed' ? 'bg-success' : status === 'canceled' ? 'bg-secondary' : 'bg-warning text-dark';
+                    return (
+                      <tr key={i}>
+                        <td>
+                          <div className="d-flex align-items-center gap-3">
+                            <div className="avatar" style={{ width: 38, height: 38 }}>
+                              {b.image ? <img src={getImageUrl(b.image)!} alt={b.patientName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                                : <span style={{ color: 'white', fontWeight: 700, fontSize: 14 }}>{b.patientName[0]}</span>}
+                            </div>
+                            <div style={{ fontWeight: 600, fontSize: 14 }}>{b.patientName}</div>
                           </div>
-                          <div style={{ fontWeight: 600, fontSize: 14 }}>{b.patientName}</div>
-                        </div>
-                      </td>
-                      <td style={{ fontSize: 13 }}>{b.day}</td>
-                      <td style={{ fontSize: 13, color: '#64748b' }}>{b.startTime} – {b.endTime}</td>
-                      <td style={{ fontSize: 13, color: '#64748b' }}>{b.phoneNumber}</td>
-                      <td style={{ fontSize: 13, color: '#64748b' }}>{b.age}</td>
-                      <td>
-                        <button
-                          className="btn btn-sm btn-outline-success rounded-pill"
-                          onClick={() => handleConfirm(b.bookingId)}
-                          disabled={confirmingId === b.bookingId || b.bookingId === 0}
-                        >
-                          {confirmingId === b.bookingId
-                            ? <span className="spinner-border spinner-border-sm"></span>
-                            : <><i className="bi bi-check-circle me-1"></i>Complete</>}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td style={{ fontSize: 13 }}>{b.day}</td>
+                        <td style={{ fontSize: 13, color: '#64748b' }}>{b.startTime} – {b.endTime}</td>
+                        <td style={{ fontSize: 13, color: '#64748b' }}>{b.phoneNumber}</td>
+                        <td style={{ fontSize: 13, color: '#64748b' }}>{b.age}</td>
+                        <td>
+                          <span className={`badge rounded-pill ${statusClass}`} style={{ fontSize: 11 }}>
+                            {b.bookingStatus ?? 'Unknown'}
+                          </span>
+                        </td>
+                        <td>
+                          {isPending && (
+                            <button
+                              className="btn btn-sm btn-outline-success rounded-pill"
+                              onClick={() => handleConfirm(b.bookingId)}
+                              disabled={confirmingId === b.bookingId}
+                            >
+                              {confirmingId === b.bookingId
+                                ? <span className="spinner-border spinner-border-sm"></span>
+                                : <><i className="bi bi-check-circle me-1"></i>Complete</>}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
               </tbody>
             </table>
           </div>
@@ -198,15 +214,36 @@ const DoctorAppointments: React.FC = () => {
   );
 };
 
+const DAY_LABEL: Record<string, string> = {
+  '0': 'Unknown', '1': 'Saturday', '2': 'Sunday', '3': 'Monday', '4': 'Tuesday',
+  '5': 'Wednesday', '6': 'Thursday', '7': 'Friday',
+  'Saturaday': 'Saturday', 'Saturday': 'Saturday', 'Sunday': 'Sunday',
+  'Monday': 'Monday', 'Tuesday': 'Tuesday', 'Wednesday': 'Wednesday',
+  'Thursday': 'Thursday', 'Friday': 'Friday',
+};
+
 // ─── Manage Schedule ──────────────────────────────────────────────────────────
 const DoctorSchedule: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
   const [price, setPrice] = useState(0);
-  const [slots, setSlots] = useState([{ day: 0, startTime: '', endTime: '' }]);
+  const [slots, setSlots] = useState([{ day: 1, startTime: '', endTime: '' }]);
+  const [schedule, setSchedule] = useState<IDoctorScheduleSlotDTO[]>([]);
+  const [loadingSchedule, setLoadingSchedule] = useState(true);
 
-  const addSlot = () => setSlots(s => [...s, { day: 0, startTime: '', endTime: '' }]);
+  const loadSchedule = () => {
+    setLoadingSchedule(true);
+    getMySchedule()
+      .then(r => setSchedule(r.data))
+      .catch(() => setSchedule([]))
+      .finally(() => setLoadingSchedule(false));
+  };
+
+  useEffect(() => { loadSchedule(); }, []);
+
+  const addSlot = () => setSlots(s => [...s, { day: 1, startTime: '', endTime: '' }]);
   const removeSlot = (i: number) => setSlots(s => s.filter((_, idx) => idx !== i));
   const updateSlot = (i: number, field: string, value: string | number) =>
     setSlots(s => s.map((sl, idx) => idx === i ? { ...sl, [field]: value } : sl));
@@ -214,6 +251,7 @@ const DoctorSchedule: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
     try {
       const grouped: Record<number, { startTime: string; endTime: string }[]> = {};
       slots.forEach(s => {
@@ -221,7 +259,7 @@ const DoctorSchedule: React.FC = () => {
         grouped[s.day].push({ startTime: s.startTime, endTime: s.endTime });
       });
       await addAppointment({
-        doctorId: 0, // backend overrides with JWT-derived doctor ID
+        doctorId: 0,
         price,
         dayAppointments: Object.entries(grouped).map(([day, times]) => ({
           day: Number(day),
@@ -230,10 +268,23 @@ const DoctorSchedule: React.FC = () => {
       });
       setSuccess('Appointment slots added successfully!');
       setShowModal(false);
-      setSlots([{ day: 0, startTime: '', endTime: '' }]);
-    } catch { /* handled */ }
-    finally { setLoading(false); }
+      setSlots([{ day: 1, startTime: '', endTime: '' }]);
+      loadSchedule();
+    } catch (e: any) {
+      setError(e?.response?.data?.message || e?.response?.data || 'Failed to save slots.');
+    } finally { setLoading(false); }
   };
+
+  const handleDelete = async (appointmentId: number) => {
+    try {
+      await deleteAppointment(appointmentId);
+      setSchedule(s => s.filter(sl => sl.appointmentId !== appointmentId));
+    } catch (e: any) {
+      setError(e?.response?.data?.message || e?.response?.data || 'Could not delete slot.');
+    }
+  };
+
+  const DAYS = ['', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
   return (
     <div>
@@ -242,7 +293,7 @@ const DoctorSchedule: React.FC = () => {
           <h2 className="section-title">Manage Schedule</h2>
           <p className="section-subtitle">Add and manage your available appointment slots</p>
         </div>
-        <button className="btn btn-primary rounded-pill px-4" onClick={() => setShowModal(true)}>
+        <button className="btn btn-primary rounded-pill px-4" onClick={() => { setError(''); setShowModal(true); }}>
           <i className="bi bi-plus-lg me-2"></i>Add Slots
         </button>
       </div>
@@ -253,11 +304,53 @@ const DoctorSchedule: React.FC = () => {
           <button className="btn-close ms-auto" onClick={() => setSuccess('')}></button>
         </div>
       )}
+      {error && (
+        <div className="alert alert-danger d-flex align-items-center gap-2" style={{ borderRadius: 12 }}>
+          <i className="bi bi-exclamation-circle-fill"></i>{error}
+          <button className="btn-close ms-auto" onClick={() => setError('')}></button>
+        </div>
+      )}
 
-      <div className="veezta-card p-4 text-center" style={{ color: '#94a3b8' }}>
-        <i className="bi bi-clock-history" style={{ fontSize: 48 }}></i>
-        <p className="mt-3">Use the button above to add available time slots. Patients will be able to book these slots.</p>
-      </div>
+      {loadingSchedule ? <LoadingSpinner /> : schedule.length === 0 ? (
+        <div className="veezta-card p-4 text-center" style={{ color: '#94a3b8' }}>
+          <i className="bi bi-clock-history" style={{ fontSize: 48 }}></i>
+          <p className="mt-3">No slots yet. Use the button above to add available time slots.</p>
+        </div>
+      ) : (
+        <div className="veezta-card p-0" style={{ overflow: 'hidden' }}>
+          <table className="table table-hover mb-0">
+            <thead style={{ background: '#f8fafc' }}>
+              <tr>
+                <th style={{ padding: '14px 20px', fontWeight: 600, color: '#64748b', fontSize: 13 }}>Day</th>
+                <th style={{ padding: '14px 20px', fontWeight: 600, color: '#64748b', fontSize: 13 }}>Time</th>
+                <th style={{ padding: '14px 20px', fontWeight: 600, color: '#64748b', fontSize: 13 }}>Status</th>
+                <th style={{ padding: '14px 20px', fontWeight: 600, color: '#64748b', fontSize: 13 }}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {schedule.map(slot => (
+                <tr key={slot.appointmentId}>
+                  <td style={{ padding: '14px 20px', fontWeight: 500 }}>{DAY_LABEL[String(slot.day)] ?? slot.day}</td>
+                  <td style={{ padding: '14px 20px', color: '#475569' }}>{slot.startTime} – {slot.endTime}</td>
+                  <td style={{ padding: '14px 20px' }}>
+                    {slot.isBooked
+                      ? <span className="badge bg-warning text-dark rounded-pill">Booked</span>
+                      : <span className="badge bg-success rounded-pill">Available</span>}
+                  </td>
+                  <td style={{ padding: '14px 20px' }}>
+                    {!slot.isBooked && (
+                      <button className="btn btn-sm btn-outline-danger rounded-pill"
+                        onClick={() => handleDelete(slot.appointmentId)}>
+                        <i className="bi bi-trash3"></i>
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {showModal && (
         <div className="modal d-block" style={{ background: 'rgba(0,0,0,0.5)' }}>
@@ -288,7 +381,7 @@ const DoctorSchedule: React.FC = () => {
                       <div key={i} className="d-flex gap-2 mb-2 align-items-center">
                         <select className="form-select" style={{ width: 150, flexShrink: 0 }} value={s.day}
                           onChange={e => updateSlot(i, 'day', Number(e.target.value))}>
-                          {WEEK_DAYS.map((d, di) => <option key={di} value={di}>{d}</option>)}
+                          {DAYS.slice(1).map((d, di) => <option key={di + 1} value={di + 1}>{d}</option>)}
                         </select>
                         <input type="time" className="form-control" required value={s.startTime}
                           onChange={e => updateSlot(i, 'startTime', e.target.value)} />
@@ -303,6 +396,8 @@ const DoctorSchedule: React.FC = () => {
                       </div>
                     ))}
                   </div>
+
+                  {error && <div className="alert alert-danger py-2" style={{ fontSize: 13, borderRadius: 8 }}>{error}</div>}
 
                   <div className="d-flex gap-2 justify-content-end">
                     <button type="button" className="btn btn-outline-secondary rounded-pill px-4" onClick={() => setShowModal(false)}>Cancel</button>

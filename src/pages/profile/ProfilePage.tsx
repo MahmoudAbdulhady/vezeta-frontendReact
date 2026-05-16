@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getMyProfile, updateMyProfile } from '../../api/patient.api';
 import { getDoctorMyProfile, updateDoctorMyProfile } from '../../api/doctor.api';
 import { getAdminMyProfile, updateAdminMyProfile } from '../../api/admin.api';
+import { getImageUrl } from '../../api/axiosClient';
 import { getMyBookings } from '../../api/patient.api';
 import { getMyAppointments } from '../../api/doctor.api';
 import type { IProfileDTO, IUpdateProfileDTO, IPatientBookingDTO, IDoctorBookingDTO } from '../../models';
@@ -109,8 +110,13 @@ const ProfilePage: React.FC = () => {
       else res = await getAdminMyProfile();
       setProfile(res.data);
       setEditMode(false);
+      window.dispatchEvent(new CustomEvent('profile-updated'));
     } catch (e: any) {
-      setSaveError(e?.response?.data || 'Failed to update profile.');
+      const data = e?.response?.data;
+      if (typeof data === 'string') setSaveError(data);
+      else if (data?.errors) setSaveError(Object.values(data.errors).flat().join(' '));
+      else if (data?.message) setSaveError(data.message);
+      else setSaveError('Failed to update profile.');
     } finally {
       setSaving(false);
     }
@@ -198,8 +204,8 @@ const ProfilePage: React.FC = () => {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     overflow: 'hidden', flexShrink: 0,
                   }}>
-                    {profile?.imageUrl ? (
-                      <img src={profile.imageUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    {getImageUrl(profile?.imageUrl) ? (
+                      <img src={getImageUrl(profile?.imageUrl)!} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
                       <i className="bi bi-person-fill text-white" style={{ fontSize: 36 }}></i>
                     )}

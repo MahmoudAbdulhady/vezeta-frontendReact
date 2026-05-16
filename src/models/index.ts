@@ -121,6 +121,7 @@ export interface IDoctorBookingDTO {
   image: string;
   startTime: string;
   endTime: string;
+  bookingStatus: string;
 }
 
 export interface ITimeDTO {
@@ -165,6 +166,13 @@ export interface ICreateBookingDTO {
 }
 
 // ─── Coupon ───────────────────────────────────────────────────────────────────
+export interface ICouponDTO {
+  couponId: number;
+  couponName: string;
+  code: number;
+  isActive: boolean;
+}
+
 export interface ICreateCouponDTO {
   couponName: string;
   couponCode: number; // DiscountCode enum
@@ -176,6 +184,15 @@ export interface ICouponUpdateDTO {
   couponName?: string;
   couponCode?: number;
   isActive?: boolean;
+}
+
+// ─── Doctor Schedule ─────────────────────────────────────────────────────────
+export interface IDoctorScheduleSlotDTO {
+  appointmentId: number;
+  day: string;
+  startTime: string;
+  endTime: string;
+  isBooked: boolean;
 }
 
 // ─── Profile ─────────────────────────────────────────────────────────────────

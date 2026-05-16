@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Link, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner';
-import { getDoctorAppointments, getMyBookings, bookAppointment, cancelBooking } from '../../api/patient.api';
-import type { IAppointmentDTO, IPatientBookingDTO, ITimeSlotInfoDTO } from '../../models';
+import { getDoctorAppointments, getMyBookings, bookAppointment, cancelBooking, getActiveCoupons } from '../../api/patient.api';
+import { getImageUrl } from '../../api/axiosClient';
+import type { IAppointmentDTO, IPatientBookingDTO, ICouponDTO } from '../../models';
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 const PatientSidebar: React.FC = () => {
@@ -43,18 +44,20 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
 // ─── Overview ─────────────────────────────────────────────────────────────────
 const PatientOverview: React.FC = () => {
   const [bookings, setBookings] = useState<IPatientBookingDTO[]>([]);
+  const [activeCoupons, setActiveCoupons] = useState<ICouponDTO[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const PROMO_CODES = [
-    { code: 'FIRST20', discount: '20% OFF', desc: 'First appointment discount', color: '#dbeafe', border: '#2563eb', text: '#1d4ed8' },
-    { code: 'HEALTH10', discount: '10% OFF', desc: 'All bookings discount', color: '#d1fae5', border: '#10b981', text: '#065f46' },
-    { code: 'WELLNESS15', discount: '15% OFF', desc: 'Wellness checkup discount', color: '#ede9fe', border: '#8b5cf6', text: '#6d28d9' },
+  const PROMO_COLORS = [
+    { color: '#dbeafe', border: '#2563eb', text: '#1d4ed8' },
+    { color: '#d1fae5', border: '#10b981', text: '#065f46' },
+    { color: '#ede9fe', border: '#8b5cf6', text: '#6d28d9' },
   ];
 
   useEffect(() => {
-    getMyBookings()
-      .then(r => setBookings(r.data))
-      .finally(() => setLoading(false));
+    Promise.all([
+      getMyBookings().then(r => setBookings(r.data)),
+      getActiveCoupons().then(r => setActiveCoupons(r.data)).catch(() => {}),
+    ]).finally(() => setLoading(false));
   }, []);
 
   if (loading) return <LoadingSpinner text="Loading your dashboard..." />;
@@ -91,26 +94,30 @@ const PatientOverview: React.FC = () => {
       </div>
 
       {/* Promo codes */}
-      <div className="veezta-card p-4 mb-4">
-        <h6 style={{ fontFamily: 'Sora', fontWeight: 600, marginBottom: 16 }}>
-          <i className="bi bi-gift-fill me-2" style={{ color: '#8b5cf6' }}></i>Available Promo Codes
-        </h6>
-        <div className="row g-3">
-          {PROMO_CODES.map(p => (
-            <div key={p.code} className="col-md-4">
-              <div className="promo-card" style={{ background: p.color, borderColor: p.border }}
-                onClick={() => navigator.clipboard.writeText(p.code)}>
-                <div style={{ fontSize: 18, fontWeight: 800, fontFamily: 'Sora', color: p.text }}>{p.code}</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: p.text, marginBottom: 4 }}>{p.discount}</div>
-                <div style={{ fontSize: 12, color: p.text, opacity: 0.8 }}>{p.desc}</div>
-                <div style={{ fontSize: 11, color: p.text, opacity: 0.6, marginTop: 6 }}>
-                  <i className="bi bi-clipboard me-1"></i>Click to copy
+      {activeCoupons.length > 0 && (
+        <div className="veezta-card p-4 mb-4">
+          <h6 style={{ fontFamily: 'Sora', fontWeight: 600, marginBottom: 16 }}>
+            <i className="bi bi-gift-fill me-2" style={{ color: '#8b5cf6' }}></i>Available Promo Codes
+          </h6>
+          <div className="row g-3">
+            {activeCoupons.map((c, i) => {
+              const palette = PROMO_COLORS[i % PROMO_COLORS.length];
+              return (
+                <div key={c.couponId} className="col-md-4">
+                  <div className="promo-card" style={{ background: palette.color, borderColor: palette.border }}
+                    onClick={() => navigator.clipboard.writeText(c.couponName)}>
+                    <div style={{ fontSize: 18, fontWeight: 800, fontFamily: 'Sora', color: palette.text }}>{c.couponName}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: palette.text, marginBottom: 4 }}>Code: {c.code}</div>
+                    <div style={{ fontSize: 11, color: palette.text, opacity: 0.6, marginTop: 6 }}>
+                      <i className="bi bi-clipboard me-1"></i>Click to copy
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Recent bookings */}
       <div className="veezta-card p-4">
@@ -131,7 +138,7 @@ const PatientOverview: React.FC = () => {
           bookings.slice(0, 3).map((b, i) => (
             <div key={i} className="d-flex align-items-center gap-3 mb-3 p-3" style={{ background: '#f8fafc', borderRadius: 12 }}>
               <div className="avatar" style={{ width: 44, height: 44 }}>
-                {b.image ? <img src={b.image} alt={b.doctorName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                {b.image ? <img src={getImageUrl(b.image)!} alt={b.doctorName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                   : <span style={{ color: 'white', fontWeight: 700 }}>{b.doctorName[0]}</span>}
               </div>
               <div className="flex-grow-1">
@@ -158,31 +165,43 @@ const PatientFindDoctors: React.FC = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [activeCoupons, setActiveCoupons] = useState<ICouponDTO[]>([]);
   const [bookingModal, setBookingModal] = useState<{ apt: IAppointmentDTO; dayIdx: number; timeIdx: number; appointmentId: number } | null>(null);
   const [coupon, setCoupon] = useState('');
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingError, setBookingError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [error, setError] = useState('');
   const pageSize = 10;
 
   const load = () => {
     setLoading(true);
+    setError('');
     getDoctorAppointments({ pageNumber: page, pageSize, searchTerm: search })
       .then(r => { setAppointments(r.data.appointments); setTotal(r.data.totalCounts); })
+      .catch(() => setError('Failed to load doctors. Please try again.'))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => { load(); }, [page, search]);
+  useEffect(() => {
+    getActiveCoupons().then(r => setActiveCoupons(r.data)).catch(() => {});
+  }, []);
 
   const handleBook = async () => {
     if (!bookingModal) return;
     setBookingLoading(true);
+    setBookingError('');
     try {
       await bookAppointment({ appointmentId: bookingModal.appointmentId, couponName: coupon || undefined });
       setSuccessMsg('Appointment booked successfully!');
       setBookingModal(null);
       setCoupon('');
-    } catch { /* handled */ }
-    finally { setBookingLoading(false); }
+    } catch (err: any) {
+      setBookingError(err?.response?.data?.message || 'Booking failed. Please try again.');
+    } finally {
+      setBookingLoading(false);
+    }
   };
 
   return (
@@ -196,6 +215,13 @@ const PatientFindDoctors: React.FC = () => {
         <div className="alert alert-success d-flex align-items-center gap-2" style={{ borderRadius: 12 }}>
           <i className="bi bi-check-circle-fill"></i>{successMsg}
           <button className="btn-close ms-auto" onClick={() => setSuccessMsg('')}></button>
+        </div>
+      )}
+
+      {error && (
+        <div className="alert alert-danger d-flex align-items-center gap-2" style={{ borderRadius: 12 }}>
+          <i className="bi bi-exclamation-triangle-fill"></i>{error}
+          <button className="btn btn-sm btn-outline-danger ms-auto rounded-pill" onClick={load}>Retry</button>
         </div>
       )}
 
@@ -282,7 +308,7 @@ const PatientFindDoctors: React.FC = () => {
             <div className="modal-content" style={{ borderRadius: 20, border: 'none' }}>
               <div className="modal-header border-0">
                 <h5 className="modal-title" style={{ fontFamily: 'Sora', fontWeight: 700 }}>Book Appointment</h5>
-                <button className="btn-close" onClick={() => setBookingModal(null)}></button>
+                <button className="btn-close" onClick={() => { setBookingModal(null); setBookingError(''); }}></button>
               </div>
               <div className="modal-body">
                 <div className="p-3 mb-4" style={{ background: '#f8fafc', borderRadius: 12 }}>
@@ -306,15 +332,22 @@ const PatientFindDoctors: React.FC = () => {
                     </span>
                     <input className="form-control" placeholder="e.g. FIRST20" value={coupon} onChange={e => setCoupon(e.target.value.toUpperCase())} />
                   </div>
-                  <div className="d-flex gap-2 mt-2 flex-wrap">
-                    {['FIRST20', 'HEALTH10', 'WELLNESS15'].map(c => (
-                      <button key={c} type="button" className="btn btn-sm btn-outline-primary rounded-pill"
-                        style={{ fontSize: 11 }} onClick={() => setCoupon(c)}>{c}</button>
-                    ))}
-                  </div>
+                  {activeCoupons.length > 0 && (
+                    <div className="d-flex gap-2 mt-2 flex-wrap">
+                      {activeCoupons.map(c => (
+                        <button key={c.couponId} type="button" className="btn btn-sm btn-outline-primary rounded-pill"
+                          style={{ fontSize: 11 }} onClick={() => setCoupon(c.couponName)}>{c.couponName}</button>
+                      ))}
+                    </div>
+                  )}
                 </div>
+                {bookingError && (
+                  <div className="alert alert-danger d-flex align-items-center gap-2 mb-3" style={{ borderRadius: 10, fontSize: 13 }}>
+                    <i className="bi bi-exclamation-triangle-fill"></i>{bookingError}
+                  </div>
+                )}
                 <div className="d-flex gap-2 justify-content-end">
-                  <button className="btn btn-outline-secondary rounded-pill px-4" onClick={() => setBookingModal(null)}>Cancel</button>
+                  <button className="btn btn-outline-secondary rounded-pill px-4" onClick={() => { setBookingModal(null); setBookingError(''); }}>Cancel</button>
                   <button className="btn btn-primary rounded-pill px-4" onClick={handleBook} disabled={bookingLoading}>
                     {bookingLoading ? <><span className="spinner-border spinner-border-sm me-2"></span>Booking...</> : <><i className="bi bi-calendar-check me-2"></i>Confirm Booking</>}
                   </button>
@@ -382,7 +415,7 @@ const PatientMyBookings: React.FC = () => {
             <div key={i} className="col-12">
               <div className="veezta-card p-4 d-flex align-items-center gap-4">
                 <div className="avatar" style={{ width: 56, height: 56, flexShrink: 0 }}>
-                  {b.image ? <img src={b.image} alt={b.doctorName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                  {b.image ? <img src={getImageUrl(b.image)!} alt={b.doctorName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                     : <span style={{ color: 'white', fontWeight: 700, fontSize: 20 }}>{b.doctorName[0]}</span>}
                 </div>
                 <div className="flex-grow-1">

@@ -1,5 +1,8 @@
 import axiosClient from './axiosClient';
-import type { ICreateCouponDTO, ICouponUpdateDTO } from '../models';
+import type { ICreateCouponDTO, ICouponUpdateDTO, ICouponDTO } from '../models';
+
+export const getAllCoupons = () =>
+  axiosClient.get<ICouponDTO[]>('/api/Settings/GetAllCoupons');
 
 export const createCoupon = (data: ICreateCouponDTO) => {
   const fd = new FormData();

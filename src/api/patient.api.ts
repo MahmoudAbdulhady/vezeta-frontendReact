@@ -8,6 +8,7 @@ import type {
   ICreateBookingDTO,
   IProfileDTO,
   IUpdateProfileDTO,
+  ICouponDTO,
 } from '../models';
 
 export const patientLogin = (data: ILoginRequest) =>
@@ -28,10 +29,16 @@ export const patientRegister = (form: IPatientRegisterForm) => {
   });
 };
 
-export const getDoctorAppointments = (params: IPaginationRequest) =>
-  axiosClient.get<{ appointments: IAppointmentDTO[]; totalCounts: number }>(
-    '/api/Patient/GetDoctorAppointments', { params }
+export const getDoctorAppointments = (params: IPaginationRequest) => {
+  const query: Record<string, unknown> = {
+    pageNumber: params.pageNumber,
+    pageSize: params.pageSize,
+  };
+  if (params.searchTerm) query.searchTerm = params.searchTerm;
+  return axiosClient.get<{ appointments: IAppointmentDTO[]; totalCounts: number }>(
+    '/api/Patient/GetDoctorAppointments', { params: query }
   );
+};
 
 export const bookAppointment = (data: ICreateBookingDTO) => {
   const fd = new FormData();
@@ -50,6 +57,9 @@ export const getMyBookings = () =>
 
 export const getMyProfile = () =>
   axiosClient.get<IProfileDTO>('/api/Patient/MyProfile');
+
+export const getActiveCoupons = () =>
+  axiosClient.get<ICouponDTO[]>('/api/Patient/GetActiveCoupons');
 
 export const updateMyProfile = (form: IUpdateProfileDTO) => {
   const fd = new FormData();
