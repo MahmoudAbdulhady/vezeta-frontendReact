@@ -6,13 +6,12 @@ import Navbar from '../components/Navbar/Navbar';
 const LandingPage: React.FC = () => {
   const { user, role } = useAuth();
 
-  // Redirect logged-in users straight to their dashboard
   if (user && role) {
     return <Navigate to={`/${role.toLowerCase()}/dashboard`} replace />;
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f0f4ff' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       <Navbar />
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
@@ -21,17 +20,17 @@ const LandingPage: React.FC = () => {
           <div className="row align-items-center g-5">
             <div className="col-lg-6">
               <h1 style={{
-                fontFamily: 'Sora, sans-serif',
-                fontWeight: 700,
+                fontFamily: 'var(--font-display)',
+                fontWeight: 400,
                 fontSize: 'clamp(2rem, 4vw, 3rem)',
-                color: '#0f172a',
+                color: 'var(--ink)',
                 lineHeight: 1.15,
                 marginBottom: 16,
               }}>
                 Modern Healthcare<br />
-                <span style={{ color: '#2563eb' }}>Booking System</span>
+                <span style={{ color: 'var(--primary)' }}>Booking System</span>
               </h1>
-              <p style={{ fontSize: 17, color: '#64748b', lineHeight: 1.7, maxWidth: 480, marginBottom: 32 }}>
+              <p style={{ fontSize: 17, color: 'var(--text-secondary)', lineHeight: 1.7, maxWidth: 480, marginBottom: 32 }}>
                 Connect with healthcare professionals seamlessly. Book appointments,
                 manage your health records, and get the care you deserve.
               </p>
@@ -54,16 +53,16 @@ const LandingPage: React.FC = () => {
             </div>
             <div className="col-lg-6">
               <div style={{
-                borderRadius: 20,
+                borderRadius: 'var(--r-lg)',
                 overflow: 'hidden',
-                boxShadow: '0 24px 64px rgba(37,99,235,0.15)',
-                background: '#cbd5e1',
+                boxShadow: 'var(--shadow-md)',
+                background: 'var(--sage-200)',
                 aspectRatio: '4/3',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
-                <div style={{ textAlign: 'center', color: '#94a3b8' }}>
+                <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
                   <i className="bi bi-hospital" style={{ fontSize: 80 }}></i>
                   <p style={{ marginTop: 12, fontWeight: 600, fontSize: 14 }}>Healthcare Reception</p>
                 </div>
@@ -74,58 +73,58 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* ── Everything You Need ──────────────────────────────────────── */}
-      <section style={{ padding: '60px 0', background: '#fff' }}>
+      <section style={{ padding: '60px 0', background: 'var(--surface)' }}>
         <div className="container-xl">
           <div className="text-center mb-5">
-            <h2 style={{ fontFamily: 'Sora, sans-serif', fontWeight: 700, fontSize: 28, color: '#0f172a' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 400, fontSize: 28, color: 'var(--ink)' }}>
               Everything You Need
             </h2>
-            <p style={{ color: '#64748b', fontSize: 15 }}>Comprehensive healthcare management for everyone.</p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 15 }}>Comprehensive healthcare management for everyone.</p>
           </div>
           <div className="row g-4">
             {[
               {
                 icon: 'bi-calendar2-heart',
-                color: '#2563eb',
-                bg: '#dbeafe',
+                color: 'var(--primary)',
+                bg: 'var(--sage-100)',
                 title: 'Easy Booking',
                 desc: 'Book appointments with your preferred doctors in just a few clicks. View available time slots and choose what works best for you.',
               },
               {
                 icon: 'bi-person-badge',
-                color: '#10b981',
-                bg: '#d1fae5',
+                color: 'var(--success)',
+                bg: 'var(--moss-100)',
                 title: 'Expert Doctors',
                 desc: 'Access a wide network of qualified healthcare professionals across multiple specializations to meet your specific needs.',
               },
               {
                 icon: 'bi-clock-history',
-                color: '#8b5cf6',
-                bg: '#ede9fe',
+                color: 'var(--accent)',
+                bg: 'var(--amber-100)',
                 title: 'Flexible Scheduling',
                 desc: 'Manage your appointments efficiently with real-time availability updates and flexible rescheduling options.',
               },
             ].map(f => (
               <div key={f.title} className="col-md-4">
                 <div style={{
-                  background: '#f8fafc',
-                  borderRadius: 16,
+                  background: 'var(--bg)',
+                  borderRadius: 'var(--r-lg)',
                   padding: '28px 24px',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--border)',
                   height: '100%',
                 }}>
                   <div style={{
-                    width: 48, height: 48, borderRadius: 12,
+                    width: 48, height: 48, borderRadius: 'var(--r-sm)',
                     background: f.bg,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     marginBottom: 16,
                   }}>
                     <i className={`bi ${f.icon}`} style={{ fontSize: 22, color: f.color }}></i>
                   </div>
-                  <h5 style={{ fontFamily: 'Sora, sans-serif', fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>
+                  <h5 style={{ fontFamily: 'var(--font-body)', fontWeight: 700, color: 'var(--ink)', marginBottom: 8 }}>
                     {f.title}
                   </h5>
-                  <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.6, margin: 0 }}>{f.desc}</p>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.6, margin: 0 }}>{f.desc}</p>
                 </div>
               </div>
             ))}
@@ -134,25 +133,25 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* ── Designed For Everyone ────────────────────────────────────── */}
-      <section style={{ padding: '60px 0', background: '#f0f4ff' }}>
+      <section style={{ padding: '60px 0', background: 'var(--bg)' }}>
         <div className="container-xl">
           <div className="text-center mb-5">
-            <h2 style={{ fontFamily: 'Sora, sans-serif', fontWeight: 700, fontSize: 28, color: '#0f172a' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 400, fontSize: 28, color: 'var(--ink)' }}>
               Designed For Everyone
             </h2>
-            <p style={{ color: '#64748b', fontSize: 15 }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 15 }}>
               Tailored experiences for{' '}
-              <span style={{ color: '#2563eb', fontWeight: 600 }}>patients</span>,{' '}
-              <span style={{ color: '#10b981', fontWeight: 600 }}>doctors</span>, and{' '}
-              <span style={{ color: '#8b5cf6', fontWeight: 600 }}>administrators</span>.
+              <span style={{ color: 'var(--primary)', fontWeight: 600 }}>patients</span>,{' '}
+              <span style={{ color: 'var(--success)', fontWeight: 600 }}>doctors</span>, and{' '}
+              <span style={{ color: 'var(--primary)', fontWeight: 600 }}>administrators</span>.
             </p>
           </div>
           <div className="row g-4">
             {[
               {
                 icon: 'bi-person-heart',
-                color: '#2563eb',
-                bg: '#dbeafe',
+                color: 'var(--primary)',
+                bg: 'var(--sage-100)',
                 title: 'Patients',
                 bullets: [
                   'Browse doctors by specialization',
@@ -164,8 +163,8 @@ const LandingPage: React.FC = () => {
               },
               {
                 icon: 'bi-clipboard2-pulse',
-                color: '#10b981',
-                bg: '#d1fae5',
+                color: 'var(--success)',
+                bg: 'var(--moss-100)',
                 title: 'Doctors',
                 bullets: [
                   'Manage time slots',
@@ -176,8 +175,8 @@ const LandingPage: React.FC = () => {
               },
               {
                 icon: 'bi-shield-check',
-                color: '#8b5cf6',
-                bg: '#ede9fe',
+                color: 'var(--primary)',
+                bg: 'var(--sage-100)',
                 title: 'Administrators',
                 bullets: [
                   'Manage doctor accounts',
@@ -189,10 +188,10 @@ const LandingPage: React.FC = () => {
             ].map(r => (
               <div key={r.title} className="col-md-4">
                 <div style={{
-                  background: '#fff',
-                  borderRadius: 16,
+                  background: 'var(--surface)',
+                  borderRadius: 'var(--r-lg)',
                   padding: '28px 24px',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid var(--border)',
                   height: '100%',
                   textAlign: 'center',
                 }}>
@@ -204,12 +203,12 @@ const LandingPage: React.FC = () => {
                   }}>
                     <i className={`bi ${r.icon}`} style={{ fontSize: 28, color: r.color }}></i>
                   </div>
-                  <h5 style={{ fontFamily: 'Sora, sans-serif', fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>
+                  <h5 style={{ fontFamily: 'var(--font-body)', fontWeight: 700, color: 'var(--ink)', marginBottom: 12 }}>
                     {r.title}
                   </h5>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, textAlign: 'left' }}>
                     {r.bullets.map(b => (
-                      <li key={b} style={{ color: '#64748b', fontSize: 14, padding: '3px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <li key={b} style={{ color: 'var(--text-secondary)', fontSize: 14, padding: '3px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
                         <i className="bi bi-check2" style={{ color: r.color, flexShrink: 0 }}></i>
                         {b}
                       </li>
@@ -225,13 +224,13 @@ const LandingPage: React.FC = () => {
       {/* ── CTA ─────────────────────────────────────────────────────── */}
       <section style={{
         padding: '64px 0',
-        background: 'linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)',
+        background: 'var(--primary)',
         textAlign: 'center',
       }}>
         <div className="container-xl">
           <h2 style={{
-            fontFamily: 'Sora, sans-serif',
-            fontWeight: 700,
+            fontFamily: 'var(--font-display)',
+            fontWeight: 400,
             fontSize: 'clamp(1.5rem, 3vw, 2rem)',
             color: '#fff',
             marginBottom: 12,
@@ -245,8 +244,8 @@ const LandingPage: React.FC = () => {
             to="/register"
             className="btn rounded-pill px-5 py-2"
             style={{
-              background: '#fff',
-              color: '#2563eb',
+              background: 'var(--surface)',
+              color: 'var(--primary)',
               fontWeight: 700,
               fontSize: 15,
               border: 'none',

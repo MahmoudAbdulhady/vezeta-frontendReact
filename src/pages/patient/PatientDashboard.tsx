@@ -18,7 +18,7 @@ const PatientSidebar: React.FC = () => {
   return (
     <div className="sidebar d-none d-md-block">
       <div className="px-4 mb-3">
-        <span style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Navigation</span>
+        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Navigation</span>
       </div>
       {links.map(l => (
         <Link key={l.to} to={l.to} className={`sidebar-link ${loc.pathname === l.to ? 'active' : ''}`}>
@@ -47,11 +47,8 @@ const PatientOverview: React.FC = () => {
   const [activeCoupons, setActiveCoupons] = useState<ICouponDTO[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const PROMO_COLORS = [
-    { color: '#dbeafe', border: '#2563eb', text: '#1d4ed8' },
-    { color: '#d1fae5', border: '#10b981', text: '#065f46' },
-    { color: '#ede9fe', border: '#8b5cf6', text: '#6d28d9' },
-  ];
+  // All promos use the amber palette per the design system
+  const PROMO_PALETTE = { color: 'var(--amber-50)', border: 'var(--amber-600)', text: 'var(--amber-700)' };
 
   useEffect(() => {
     Promise.all([
@@ -75,18 +72,18 @@ const PatientOverview: React.FC = () => {
       {/* Stats */}
       <div className="row g-3 mb-4">
         {[
-          { label: 'Total Bookings', value: bookings.length, icon: 'bi-calendar-heart-fill', color: '#2563eb', bg: '#dbeafe' },
-          { label: 'Upcoming', value: pending.length, icon: 'bi-clock-fill', color: '#f59e0b', bg: '#fef3c7' },
-          { label: 'Completed', value: completed.length, icon: 'bi-check-circle-fill', color: '#10b981', bg: '#d1fae5' },
+          { label: 'Total Bookings', value: bookings.length, icon: 'bi-calendar-heart-fill', color: 'var(--primary)', bg: 'var(--sage-100)' },
+          { label: 'Upcoming', value: pending.length, icon: 'bi-clock-fill', color: 'var(--warning)', bg: 'var(--honey-100)' },
+          { label: 'Completed', value: completed.length, icon: 'bi-check-circle-fill', color: 'var(--success)', bg: 'var(--moss-100)' },
         ].map(c => (
           <div key={c.label} className="col-md-4">
-            <div style={{ background: 'white', borderRadius: 16, padding: '20px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 16 }}>
-              <div style={{ width: 48, height: 48, borderRadius: 12, background: c.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ background: 'var(--surface)', borderRadius: 'var(--r-lg)', padding: '20px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{ width: 48, height: 48, borderRadius: 'var(--r-md)', background: c.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <i className={`bi ${c.icon}`} style={{ fontSize: 22, color: c.color }}></i>
               </div>
               <div>
-                <div style={{ fontSize: 28, fontWeight: 700, fontFamily: 'Sora', color: '#0f172a', lineHeight: 1 }}>{c.value}</div>
-                <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{c.label}</div>
+                <div style={{ fontSize: 28, fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--ink)', lineHeight: 1 }}>{c.value}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{c.label}</div>
               </div>
             </div>
           </div>
@@ -96,25 +93,22 @@ const PatientOverview: React.FC = () => {
       {/* Promo codes */}
       {activeCoupons.length > 0 && (
         <div className="veezta-card p-4 mb-4">
-          <h6 style={{ fontFamily: 'Sora', fontWeight: 600, marginBottom: 16 }}>
-            <i className="bi bi-gift-fill me-2" style={{ color: '#8b5cf6' }}></i>Available Promo Codes
+          <h6 style={{ fontWeight: 600, marginBottom: 16 }}>
+            <i className="bi bi-gift-fill me-2" style={{ color: 'var(--accent)' }}></i>Available Promo Codes
           </h6>
           <div className="row g-3">
-            {activeCoupons.map((c, i) => {
-              const palette = PROMO_COLORS[i % PROMO_COLORS.length];
-              return (
-                <div key={c.couponId} className="col-md-4">
-                  <div className="promo-card" style={{ background: palette.color, borderColor: palette.border }}
-                    onClick={() => navigator.clipboard.writeText(c.couponName)}>
-                    <div style={{ fontSize: 18, fontWeight: 800, fontFamily: 'Sora', color: palette.text }}>{c.couponName}</div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: palette.text, marginBottom: 4 }}>Code: {c.code}</div>
-                    <div style={{ fontSize: 11, color: palette.text, opacity: 0.6, marginTop: 6 }}>
-                      <i className="bi bi-clipboard me-1"></i>Click to copy
-                    </div>
+            {activeCoupons.map(c => (
+              <div key={c.couponId} className="col-md-4">
+                <div className="promo-card" style={{ background: PROMO_PALETTE.color, borderColor: PROMO_PALETTE.border }}
+                  onClick={() => navigator.clipboard.writeText(c.couponName)}>
+                  <div style={{ fontSize: 18, fontWeight: 800, fontFamily: 'var(--font-mono)', color: PROMO_PALETTE.text }}>{c.couponName}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: PROMO_PALETTE.text, marginBottom: 4 }}>Code: {c.code}</div>
+                  <div style={{ fontSize: 11, color: PROMO_PALETTE.text, opacity: 0.6, marginTop: 6 }}>
+                    <i className="bi bi-clipboard me-1"></i>Click to copy
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -122,29 +116,29 @@ const PatientOverview: React.FC = () => {
       {/* Recent bookings */}
       <div className="veezta-card p-4">
         <div className="d-flex align-items-center justify-content-between mb-3">
-          <h6 style={{ fontFamily: 'Sora', fontWeight: 600, marginBottom: 0 }}>
+          <h6 style={{ fontWeight: 600, marginBottom: 0 }}>
             <i className="bi bi-calendar-check me-2 text-primary"></i>Recent Bookings
           </h6>
-          <Link to="/patient/my-bookings" style={{ fontSize: 13, color: '#2563eb', textDecoration: 'none', fontWeight: 500 }}>
+          <Link to="/patient/my-bookings" style={{ fontSize: 13, color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>
             View all <i className="bi bi-arrow-right"></i>
           </Link>
         </div>
         {bookings.length === 0 ? (
-          <div className="text-center py-4" style={{ color: '#94a3b8' }}>
+          <div className="text-center py-4" style={{ color: 'var(--text-muted)' }}>
             <i className="bi bi-calendar-x" style={{ fontSize: 40 }}></i>
             <p className="mt-2 mb-0">No bookings yet. <Link to="/patient/find-doctors">Find a doctor</Link></p>
           </div>
         ) : (
           bookings.slice(0, 3).map((b, i) => (
-            <div key={i} className="d-flex align-items-center gap-3 mb-3 p-3" style={{ background: '#f8fafc', borderRadius: 12 }}>
+            <div key={i} className="d-flex align-items-center gap-3 mb-3 p-3" style={{ background: 'var(--bg)', borderRadius: 'var(--r-md)' }}>
               <div className="avatar" style={{ width: 44, height: 44 }}>
                 {b.image ? <img src={getImageUrl(b.image)!} alt={b.doctorName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                   : <span style={{ color: 'white', fontWeight: 700 }}>{b.doctorName[0]}</span>}
               </div>
               <div className="flex-grow-1">
                 <div style={{ fontWeight: 600, fontSize: 14 }}>{b.doctorName}</div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>{b.specailization} • {b.day} {b.startTime}</div>
-                <div style={{ fontSize: 12, color: '#94a3b8' }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{b.specailization} • {b.day} {b.startTime}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                   Price: {b.finalPrice || b.price}
                   {b.finalPrice && b.finalPrice !== b.price && <span className="ms-1 text-success">(Discounted)</span>}
                 </div>
@@ -212,14 +206,14 @@ const PatientFindDoctors: React.FC = () => {
       </div>
 
       {successMsg && (
-        <div className="alert alert-success d-flex align-items-center gap-2" style={{ borderRadius: 12 }}>
+        <div className="alert alert-success d-flex align-items-center gap-2" style={{ borderRadius: 'var(--r-md)' }}>
           <i className="bi bi-check-circle-fill"></i>{successMsg}
           <button className="btn-close ms-auto" onClick={() => setSuccessMsg('')}></button>
         </div>
       )}
 
       {error && (
-        <div className="alert alert-danger d-flex align-items-center gap-2" style={{ borderRadius: 12 }}>
+        <div className="alert alert-danger d-flex align-items-center gap-2" style={{ borderRadius: 'var(--r-md)' }}>
           <i className="bi bi-exclamation-triangle-fill"></i>{error}
           <button className="btn btn-sm btn-outline-danger ms-auto rounded-pill" onClick={load}>Retry</button>
         </div>
@@ -227,7 +221,7 @@ const PatientFindDoctors: React.FC = () => {
 
       <div className="mb-4">
         <div className="input-group" style={{ maxWidth: 380 }}>
-          <span className="input-group-text" style={{ background: 'white', borderRight: 'none' }}>
+          <span className="input-group-text" style={{ background: 'var(--surface)', borderRight: 'none' }}>
             <i className="bi bi-search text-muted"></i>
           </span>
           <input className="form-control" placeholder="Search by doctor name or specialization..."
@@ -239,7 +233,7 @@ const PatientFindDoctors: React.FC = () => {
       {loading ? <LoadingSpinner text="Finding available doctors..." /> : (
         <div className="row g-3">
           {appointments.length === 0 ? (
-            <div className="col-12 text-center py-5" style={{ color: '#94a3b8' }}>
+            <div className="col-12 text-center py-5" style={{ color: 'var(--text-muted)' }}>
               <i className="bi bi-search" style={{ fontSize: 48 }}></i>
               <p className="mt-2">No doctors found. Try a different search.</p>
             </div>
@@ -252,7 +246,7 @@ const PatientFindDoctors: React.FC = () => {
                       <span style={{ color: 'white', fontWeight: 700, fontSize: 20 }}>{apt.doctorName[0]}</span>
                     </div>
                     <div>
-                      <div style={{ fontWeight: 700, fontSize: 15, fontFamily: 'Sora' }}>{apt.doctorName}</div>
+                      <div style={{ fontWeight: 700, fontSize: 15 }}>{apt.doctorName}</div>
                       <span className="badge bg-primary bg-opacity-10 text-primary rounded-pill" style={{ fontSize: 11 }}>
                         {apt.specailization}
                       </span>
@@ -261,20 +255,20 @@ const PatientFindDoctors: React.FC = () => {
                   {apt.price && (
                     <div className="mb-3 d-flex align-items-center gap-1">
                       <i className="bi bi-currency-dollar text-success"></i>
-                      <span style={{ fontWeight: 600, color: '#10b981', fontSize: 15 }}>${apt.price}</span>
-                      <span style={{ fontSize: 12, color: '#94a3b8' }}>per visit</span>
+                      <span style={{ fontWeight: 600, color: 'var(--success)', fontSize: 15 }}>${apt.price}</span>
+                      <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>per visit</span>
                     </div>
                   )}
                   <div>
                     {apt.availableDay?.slice(0, 3).map((day, di) => (
                       <div key={di} className="mb-2">
-                        <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 4 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>
                           <i className="bi bi-calendar3 me-1"></i>{day.day}
                         </div>
                         <div className="d-flex flex-wrap gap-1">
                           {day.timeSlots?.slice(0, 4).map((slot, ti) => (
                             <button key={ti} className="btn btn-sm"
-                              style={{ fontSize: 11, padding: '3px 10px', borderRadius: 20, border: '1px solid #2563eb', color: '#2563eb', background: 'transparent' }}
+                              style={{ fontSize: 11, padding: '3px 10px', borderRadius: 'var(--r-pill)', border: '1px solid var(--primary)', color: 'var(--primary)', background: 'transparent' }}
                               onClick={() => setBookingModal({ apt, dayIdx: di, timeIdx: ti, appointmentId: slot.appointmentId })}>
                               {slot.display}
                             </button>
@@ -303,23 +297,23 @@ const PatientFindDoctors: React.FC = () => {
 
       {/* Booking Modal */}
       {bookingModal && (
-        <div className="modal d-block" style={{ background: 'rgba(0,0,0,0.5)' }}>
+        <div className="modal d-block" style={{ background: 'rgba(31,42,36,0.32)' }}>
           <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content" style={{ borderRadius: 20, border: 'none' }}>
+            <div className="modal-content">
               <div className="modal-header border-0">
-                <h5 className="modal-title" style={{ fontFamily: 'Sora', fontWeight: 700 }}>Book Appointment</h5>
+                <h5 className="modal-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 400 }}>Book Appointment</h5>
                 <button className="btn-close" onClick={() => { setBookingModal(null); setBookingError(''); }}></button>
               </div>
               <div className="modal-body">
-                <div className="p-3 mb-4" style={{ background: '#f8fafc', borderRadius: 12 }}>
+                <div className="p-3 mb-4" style={{ background: 'var(--bg)', borderRadius: 'var(--r-md)' }}>
                   <div style={{ fontWeight: 600 }}>{bookingModal.apt.doctorName}</div>
-                  <div style={{ fontSize: 13, color: '#64748b' }}>
+                  <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
                     {bookingModal.apt.specailization} •{' '}
                     {bookingModal.apt.availableDay?.[bookingModal.dayIdx]?.day}{' '}
                     {bookingModal.apt.availableDay?.[bookingModal.dayIdx]?.timeSlots?.[bookingModal.timeIdx]?.display}
                   </div>
                   {bookingModal.apt.price && (
-                    <div style={{ fontSize: 14, fontWeight: 600, color: '#10b981', marginTop: 4 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--success)', marginTop: 4 }}>
                       ${bookingModal.apt.price}
                     </div>
                   )}
@@ -327,7 +321,7 @@ const PatientFindDoctors: React.FC = () => {
                 <div className="mb-3">
                   <label className="form-label">Promo Code (optional)</label>
                   <div className="input-group">
-                    <span className="input-group-text" style={{ background: '#f8fafc' }}>
+                    <span className="input-group-text" style={{ background: 'var(--bg)' }}>
                       <i className="bi bi-tag text-primary"></i>
                     </span>
                     <input className="form-control" placeholder="e.g. FIRST20" value={coupon} onChange={e => setCoupon(e.target.value.toUpperCase())} />
@@ -342,7 +336,7 @@ const PatientFindDoctors: React.FC = () => {
                   )}
                 </div>
                 {bookingError && (
-                  <div className="alert alert-danger d-flex align-items-center gap-2 mb-3" style={{ borderRadius: 10, fontSize: 13 }}>
+                  <div className="alert alert-danger d-flex align-items-center gap-2 mb-3" style={{ borderRadius: 'var(--r-sm)', fontSize: 13 }}>
                     <i className="bi bi-exclamation-triangle-fill"></i>{bookingError}
                   </div>
                 )}
@@ -407,7 +401,7 @@ const PatientMyBookings: React.FC = () => {
       {loading ? <LoadingSpinner /> : (
         <div className="row g-3">
           {filtered.length === 0 ? (
-            <div className="col-12 text-center py-5" style={{ color: '#94a3b8' }}>
+            <div className="col-12 text-center py-5" style={{ color: 'var(--text-muted)' }}>
               <i className="bi bi-calendar-x" style={{ fontSize: 48 }}></i>
               <p className="mt-2">No {filter !== 'all' ? filter : ''} bookings found.</p>
             </div>
@@ -423,7 +417,7 @@ const PatientMyBookings: React.FC = () => {
                     <span style={{ fontWeight: 700, fontSize: 15 }}>{b.doctorName}</span>
                     <StatusBadge status={b.bookingStatus} />
                   </div>
-                  <div style={{ fontSize: 13, color: '#64748b' }}>
+                  <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
                     <i className="bi bi-hospital me-1"></i>{b.specailization}
                     <span className="mx-2">•</span>
                     <i className="bi bi-calendar3 me-1"></i>{b.day}
@@ -431,7 +425,7 @@ const PatientMyBookings: React.FC = () => {
                     <i className="bi bi-clock me-1"></i>{b.startTime} – {b.endTime}
                   </div>
                   <div style={{ fontSize: 13, marginTop: 4 }}>
-                    <span style={{ color: '#94a3b8' }}>Price: </span>
+                    <span style={{ color: 'var(--text-muted)' }}>Price: </span>
                     <span style={{ fontWeight: 600 }}>{b.finalPrice || b.price}</span>
                     {b.finalPrice && b.finalPrice !== b.price && (
                       <span className="ms-2 text-success" style={{ fontSize: 12 }}>

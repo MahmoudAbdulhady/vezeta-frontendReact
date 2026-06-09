@@ -1,67 +1,135 @@
+/* ============================================================================
+   Veezta Design System — DROP-IN replacement for src/styles/global.css
+   ----------------------------------------------------------------------------
+   HOW TO USE
+     1. Back up your existing src/styles/global.css
+     2. Replace its entire contents with this file
+     3. Done. No .tsx / no component / no logic changes required.
+
+   WHY THIS WORKS
+     Your app styles everything through CSS variables + the class names below
+     (.veezta-card, .sidebar-link, .status-badge, .veezta-table, .doctor-card,
+     .promo-card, .auth-card, .form-control, .btn-primary …). This file keeps
+     EVERY one of those selectors and only changes how they look. The markup
+     in your .tsx files references the same classes, so it reskins in place.
+
+   The new look: warm paper + ink + sage, one amber accent. Editorial serif
+   headings (Instrument Serif) + warm sans body (Manrope). Two radii (8/18px),
+   hairline borders instead of heavy shadows, calm 180ms motion.
+   ============================================================================ */
+
+/* ── Fonts + icons (icons already in your index.html; safe to keep both) ── */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ============================================================================
+   1. TOKENS — old variable names kept, remapped to the new palette.
+   Any code reading var(--primary) etc. instantly gets the new colours.
+   ============================================================================ */
 :root {
-  --primary: #2563eb;
-  --primary-light: #eff6ff;
-  --primary-dark: #1d4ed8;
-  --accent: #06b6d4;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  --border: #e2e8f0;
-  --surface: #ffffff;
-  --bg: #f8fafc;
-  --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(37,99,235,0.06);
-  --card-shadow-hover: 0 4px 24px rgba(37,99,235,0.14);
+  /* —— Back-compat aliases (your old names → new values) —————————————————— */
+  --primary:        #5C7A6B;   /* was #2563eb — sage 600 */
+  --primary-light:  #E6EEE2;   /* was #eff6ff — sage 100 */
+  --primary-dark:   #4A6557;   /* was #1d4ed8 — sage 700 */
+  --accent:         #C58A3D;   /* was #06b6d4 — amber 600 */
+  --success:        #3F7A4A;   /* was #10b981 — moss 600 */
+  --warning:        #9C701F;   /* was #f59e0b — honey 600 */
+  --danger:         #C25C49;   /* was #ef4444 — coral 600 */
+  --text-primary:   #1F2A24;   /* was #0f172a — ink */
+  --text-secondary: #5E6B65;   /* was #475569 — slate */
+  --text-muted:     #9AA6A0;   /* was #94a3b8 — fog */
+  --border:         #E4DED2;   /* was #e2e8f0 — line */
+  --surface:        #FBF8F2;   /* was #ffffff — cream */
+  --bg:             #F5F1EA;   /* was #f8fafc — bone */
+  --card-shadow:        0 1px 0 rgba(31,42,36,0.04), 0 1px 2px rgba(31,42,36,0.05);
+  --card-shadow-hover:  0 8px 24px -8px rgba(31,42,36,0.10);
+
+  /* —— Full new token set (use these going forward) ————————————————————— */
+  --bone: #F5F1EA; --cream: #FBF8F2; --paper: #FFFFFF;
+  --line: #E4DED2; --line-strong: #CCC4B4;
+  --ink: #1F2A24; --ink-soft: #2F3A33; --slate: #5E6B65; --fog: #9AA6A0; --mist: #C5CCC7;
+  --sage-50:#F2F6EE; --sage-100:#E6EEE2; --sage-200:#C9D9C2; --sage-300:#9FB995;
+  --sage-500:#6D8A7C; --sage-600:#5C7A6B; --sage-700:#4A6557; --sage-800:#38493F;
+  --amber-50:#FAF3E7; --amber-100:#F3E4C5; --amber-500:#D9994E; --amber-600:#C58A3D; --amber-700:#9A6A2A;
+  --moss-100:#DCE8DC; --moss-600:#3F7A4A;
+  --coral-100:#F4D9D3; --coral-600:#C25C49;
+  --honey-100:#F6E6C0; --honey-600:#9C701F;
+  --dust-100:#DDE4EA; --dust-600:#56697A;
+
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'Manrope', -apple-system, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+
+  --r-sm: 8px; --r-md: 12px; --r-lg: 18px; --r-pill: 999px;
+  --shadow-sm: 0 1px 0 rgba(31,42,36,0.04), 0 1px 2px rgba(31,42,36,0.05);
+  --shadow-md: 0 8px 24px -8px rgba(31,42,36,0.10);
+  --shadow-lg: 0 24px 48px -12px rgba(31,42,36,0.16);
+  --ring-focus: 0 0 0 3px rgba(92,122,107,0.18);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Bootstrap variable overrides so native components follow the brand */
+  --bs-primary: #5C7A6B;
+  --bs-primary-rgb: 92,122,107;
+  --bs-body-color: #1F2A24;
+  --bs-body-bg: #F5F1EA;
+  --bs-border-color: #E4DED2;
+  --bs-link-color: #4A6557;
+  --bs-link-hover-color: #38493F;
 }
 
 * { box-sizing: border-box; }
 
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   background: var(--bg);
   color: var(--text-primary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, h5, h6, .display-1, .display-2, .navbar-brand {
-  font-family: 'Sora', sans-serif;
+/* Headings use the editorial serif. Your .section-title etc. handled below. */
+h1, h2, h3, .display-1, .display-2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  color: var(--ink);
 }
+h4, h5, h6 { font-family: var(--font-body); font-weight: 700; color: var(--ink); }
+.navbar-brand { font-family: var(--font-display); font-weight: 400; letter-spacing: -0.02em; font-size: 26px; color: var(--ink) !important; }
 
-/* Cards */
+a { color: var(--sage-700); }
+a:hover { color: var(--sage-800); }
+::selection { background: var(--sage-100); color: var(--ink); }
+
+/* ============================================================================
+   2. CARDS
+   ============================================================================ */
 .veezta-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: var(--card-shadow);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  border-radius: var(--r-lg);
+  box-shadow: none;                       /* hairline border, not shadow */
+  transition: box-shadow 180ms var(--ease-out), transform 180ms var(--ease-out), border-color 180ms var(--ease-out);
 }
-.veezta-card:hover { box-shadow: var(--card-shadow-hover); }
+.veezta-card:hover { box-shadow: var(--card-shadow-hover); border-color: var(--line-strong); transform: translateY(-1px); }
 
-/* Stat Cards */
+/* Stat cards — drop the old decorative circle, use a flat tinted tile look */
 .stat-card {
-  border-radius: 16px;
-  padding: 24px;
+  border-radius: var(--r-lg);
+  padding: 22px;
   position: relative;
   overflow: hidden;
-  border: none;
-}
-.stat-card::after {
-  content: '';
-  position: absolute;
-  bottom: -20px; right: -20px;
-  width: 80px; height: 80px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.15);
-}
-
-/* Sidebar */
-.sidebar {
-  width: 250px;
-  min-height: calc(100vh - 66px);
+  border: 1px solid var(--border);
   background: var(--surface);
+}
+.stat-card::after { display: none; }      /* remove the floating white circle */
+
+/* ============================================================================
+   3. SIDEBAR  (desktop column → mobile bottom tab bar)
+   ============================================================================ */
+.sidebar {
+  width: 240px;
+  min-height: calc(100vh - 66px);
+  background: transparent;
   border-right: 1px solid var(--border);
   padding: 24px 0;
   flex-shrink: 0;
@@ -69,175 +137,252 @@ h1, h2, h3, h4, h5, h6, .display-1, .display-2, .navbar-brand {
 .sidebar-link {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 20px;
+  gap: 12px;
+  padding: 10px 22px;
   color: var(--text-secondary);
   text-decoration: none;
   font-weight: 500;
   font-size: 14px;
-  border-radius: 0 12px 12px 0;
-  margin: 2px 8px 2px 0;
-  transition: all 0.15s ease;
+  border-radius: 0;
+  margin: 2px 0;
+  transition: all 180ms var(--ease-out);
   border-left: 3px solid transparent;
 }
-.sidebar-link:hover, .sidebar-link.active {
-  background: var(--primary-light);
-  color: var(--primary);
-  border-left-color: var(--primary);
+.sidebar-link i { font-size: 16px; width: 20px; text-align: center; color: var(--fog); }
+.sidebar-link:hover { background: var(--sage-50); color: var(--ink); }
+.sidebar-link:hover i { color: var(--slate); }
+.sidebar-link.active {
+  background: var(--sage-50);
+  color: var(--ink);
+  font-weight: 700;
+  border-left-color: var(--sage-600);
 }
-.sidebar-link i { font-size: 17px; width: 20px; text-align: center; }
+.sidebar-link.active i { color: var(--sage-700); }
 
-/* Main content area */
-.main-content {
-  flex: 1;
-  padding: 32px;
-  min-height: calc(100vh - 66px);
-  overflow-y: auto;
-}
+.main-content { flex: 1; padding: 32px; min-height: calc(100vh - 66px); overflow-y: auto; }
+.dashboard-layout { display: flex; min-height: calc(100vh - 66px); max-width: 1180px; margin: 0 auto; }
 
-/* Dashboard layout */
-.dashboard-layout {
-  display: flex;
-  min-height: calc(100vh - 66px);
-}
-
-/* Badges */
+/* ============================================================================
+   4. STATUS BADGES — Pending / Completed / Cancelled
+   ============================================================================ */
 .status-badge {
-  padding: 4px 12px;
-  border-radius: 100px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 11px;
+  border-radius: var(--r-pill);
   font-size: 12px;
   font-weight: 600;
   text-transform: capitalize;
+  letter-spacing: 0.01em;
 }
-.status-pending { background: #fef3c7; color: #92400e; }
-.status-completed { background: #d1fae5; color: #065f46; }
-.status-canceled { background: #fee2e2; color: #991b1b; }
+.status-pending   { background: var(--honey-100); color: var(--honey-600); }
+.status-completed { background: var(--moss-100);  color: var(--moss-600); }
+.status-canceled  { background: var(--coral-100); color: var(--coral-600); }
 
-/* Tables */
-.veezta-table { border-radius: 12px; overflow: hidden; }
+/* ============================================================================
+   5. TABLES
+   ============================================================================ */
+.veezta-table { border-radius: var(--r-md); overflow: hidden; }
 .veezta-table thead th {
-  background: #f1f5f9;
+  background: transparent;
   color: var(--text-secondary);
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.12em;
   border: none;
+  border-bottom: 1px solid var(--border);
   padding: 12px 16px;
 }
 .veezta-table tbody td {
   padding: 14px 16px;
   vertical-align: middle;
   border-color: var(--border);
-  font-size: 14px;
+  font-size: 13.5px;
 }
-.veezta-table tbody tr:hover { background: #f8fafc; }
+.veezta-table tbody tr:hover { background: var(--sage-50); }
 
-/* Avatar */
+/* ============================================================================
+   6. AVATARS — sage tint + serif initial (was a blue→cyan gradient)
+   ============================================================================ */
 .avatar {
   width: 40px; height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background: var(--sage-100);
   display: flex; align-items: center; justify-content: center;
-  color: white; font-weight: 700; font-size: 15px;
+  color: var(--sage-700);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 17px;
   flex-shrink: 0;
 }
 .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 
-/* Buttons */
-.btn-primary {
-  background: var(--primary);
-  border-color: var(--primary);
-}
-.btn-primary:hover {
-  background: var(--primary-dark);
-  border-color: var(--primary-dark);
-}
+/* ============================================================================
+   7. BUTTONS (Bootstrap component overrides — no JSX change needed)
+   ============================================================================ */
+.btn { font-family: var(--font-body); font-weight: 600; transition: all 180ms var(--ease-out); }
+.btn:active { transform: scale(0.985); }
 
-/* Login/Register page */
+.btn-primary { background: var(--sage-600); border-color: var(--sage-600); color: #FBF8F2; }
+.btn-primary:hover, .btn-primary:focus { background: var(--sage-700); border-color: var(--sage-700); color: #FBF8F2; }
+
+.btn-outline-secondary { color: var(--ink); border-color: var(--line); background: var(--cream); }
+.btn-outline-secondary:hover { background: var(--sage-50); border-color: var(--ink); color: var(--ink); }
+
+.btn-outline-primary { color: var(--sage-700); border-color: var(--sage-600); }
+.btn-outline-primary:hover { background: var(--sage-600); border-color: var(--sage-600); color: #FBF8F2; }
+
+.btn-outline-danger { color: var(--coral-600); border-color: var(--coral-100); }
+.btn-outline-danger:hover { background: var(--coral-100); border-color: var(--coral-600); color: var(--coral-600); }
+
+.btn-outline-success { color: var(--moss-600); border-color: var(--moss-100); }
+.btn-outline-success:hover { background: var(--moss-100); border-color: var(--moss-600); color: var(--moss-600); }
+
+/* Optional: tame Bootstrap's rounded-pill buttons toward the 8px system.
+   COMMENT THIS OUT if you'd rather keep pill-shaped buttons. */
+.btn.rounded-pill { border-radius: var(--r-sm) !important; }
+
+/* ============================================================================
+   8. AUTH (login / register)
+   ============================================================================ */
 .auth-page {
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #eff6ff 0%, #f0fdff 50%, #f0fdf4 100%);
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 20% 20%, var(--sage-100), var(--bone) 60%);
   padding: 24px;
 }
 .auth-card {
   width: 100%;
   max-width: 460px;
-  background: white;
-  border-radius: 24px;
-  padding: 48px 40px;
-  box-shadow: 0 8px 48px rgba(37,99,235,0.12);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 44px 40px;
+  box-shadow: var(--shadow-lg);
 }
 
-/* Section headings */
+/* ============================================================================
+   9. SECTION TITLES
+   ============================================================================ */
 .section-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text-primary);
-  font-family: 'Sora', sans-serif;
+  font-size: 32px;
+  font-weight: 400;
+  color: var(--ink);
+  font-family: var(--font-display);
+  letter-spacing: -0.015em;
   margin-bottom: 4px;
 }
-.section-subtitle {
-  font-size: 14px;
-  color: var(--text-muted);
-}
+.section-subtitle { font-size: 14px; color: var(--text-secondary); }
 
-/* Form controls */
+/* ============================================================================
+   10. FORM CONTROLS
+   ============================================================================ */
 .form-control, .form-select {
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   border-color: var(--border);
+  background: var(--cream);
   padding: 10px 14px;
   font-size: 14px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  color: var(--ink);
+  transition: border-color 180ms var(--ease-out), box-shadow 180ms var(--ease-out);
 }
 .form-control:focus, .form-select:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  border-color: var(--sage-600);
+  box-shadow: var(--ring-focus);
+  background: var(--paper);
 }
-.form-label { font-weight: 500; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+.form-control::placeholder { color: var(--fog); }
+.form-label { font-weight: 600; font-size: 12px; color: var(--ink); margin-bottom: 6px; }
 
-/* Doctor card for patient view */
+/* ============================================================================
+   11. DOCTOR CARD (patient view)
+   ============================================================================ */
 .doctor-card {
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   border: 1px solid var(--border);
   overflow: hidden;
-  transition: all 0.2s ease;
-  background: white;
+  transition: all 180ms var(--ease-out);
+  background: var(--surface);
 }
-.doctor-card:hover {
-  box-shadow: var(--card-shadow-hover);
-  transform: translateY(-2px);
-}
-.doctor-card .doctor-img {
-  width: 64px; height: 64px; border-radius: 50%; object-fit: cover;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-}
+.doctor-card:hover { box-shadow: var(--card-shadow-hover); transform: translateY(-2px); border-color: var(--line-strong); }
+.doctor-card .doctor-img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; background: var(--sage-100); }
 
-/* Promo code card */
+/* ============================================================================
+   12. PROMO CARD — dashed amber, mono code
+   ============================================================================ */
 .promo-card {
-  border: 2px dashed var(--primary);
-  border-radius: 14px;
-  background: var(--primary-light);
+  border: 1px dashed var(--amber-600);
+  border-radius: var(--r-md);
+  background: var(--amber-50);
   padding: 16px 20px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 180ms var(--ease-out);
 }
-.promo-card:hover { background: #dbeafe; }
+.promo-card:hover { background: var(--amber-100); }
 
-/* Page title bar */
-.page-header {
-  margin-bottom: 28px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
-}
+/* ============================================================================
+   13. PAGE HEADER
+   ============================================================================ */
+.page-header { margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
 
-/* Responsive */
+/* ============================================================================
+   14. MISC Bootstrap surfaces nudged onto the brand
+   ============================================================================ */
+.modal-content { border-radius: var(--r-lg); border: 1px solid var(--line); background: var(--paper); box-shadow: var(--shadow-lg); }
+.modal { --bs-modal-bg: var(--paper); }
+.alert-success { background: var(--moss-100); color: var(--moss-600); border-color: transparent; border-radius: var(--r-md); }
+.alert-danger  { background: var(--coral-100); color: var(--coral-600); border-color: transparent; border-radius: var(--r-md); }
+.badge.bg-primary { background: var(--sage-100) !important; color: var(--sage-700) !important; }
+.navbar { background: rgba(245,241,234,0.78) !important; backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+.input-group-text { background: var(--cream); border-color: var(--line); color: var(--slate); }
+
+/* ============================================================================
+   15. RESPONSIVE — mobile turns the sidebar into a bottom tab bar
+   (works with your existing <div className="sidebar"> … <Link className="sidebar-link">)
+   ============================================================================ */
 @media (max-width: 768px) {
-  .sidebar { display: none; }
-  .main-content { padding: 20px 16px; }
+  .main-content { padding: 20px 16px 92px; }      /* room for bottom bar */
   .auth-card { padding: 32px 24px; }
+  .section-title { font-size: 26px; }
+
+  /* Sidebar → fixed bottom bar. Was display:none in the old CSS. */
+  .sidebar {
+    display: flex !important;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 40;
+    width: auto;
+    min-height: 0;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    background: rgba(245,241,234,0.94);
+    backdrop-filter: blur(14px);
+    border-right: 0;
+    border-top: 1px solid var(--line);
+    overflow-x: auto;
+  }
+  /* Hide the "Navigation" label block on mobile */
+  .sidebar > .px-4 { display: none; }
+  .sidebar-link {
+    flex: 1 0 auto;
+    min-width: 64px;
+    flex-direction: column;
+    gap: 3px;
+    padding: 8px 6px;
+    border-left: 0;
+    border-radius: var(--r-sm);
+    margin: 0;
+    text-align: center;
+    font-size: 10.5px;
+    font-weight: 600;
+    background: transparent !important;
+  }
+  .sidebar-link i { font-size: 19px; width: auto; }
+  .sidebar-link.active { background: transparent !important; color: var(--sage-700); }
+
+  .dashboard-layout { flex-direction: column; }
 }

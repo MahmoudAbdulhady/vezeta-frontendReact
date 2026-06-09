@@ -26,7 +26,7 @@ const AdminSidebar: React.FC = () => {
   return (
     <div className="sidebar d-none d-md-block">
       <div className="px-4 mb-3">
-        <span style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Navigation</span>
+        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Navigation</span>
       </div>
       {links.map(l => (
         <Link key={l.to} to={l.to} className={`sidebar-link ${loc.pathname === l.to ? 'active' : ''}`}>
@@ -60,10 +60,10 @@ const AdminOverview: React.FC = () => {
   if (loading) return <LoadingSpinner text="Loading dashboard..." />;
 
   const statCards = [
-    { label: 'Total Doctors', value: stats.doctors, icon: 'bi-heart-pulse-fill', color: '#10b981', bg: '#d1fae5' },
-    { label: 'Total Patients', value: stats.patients, icon: 'bi-people-fill', color: '#2563eb', bg: '#dbeafe' },
-    { label: 'New Doctors (24h)', value: stats.last24h, icon: 'bi-person-plus-fill', color: '#f59e0b', bg: '#fef3c7' },
-    { label: 'Pending Bookings', value: requests?.numOfPendingRequest ?? 0, icon: 'bi-clock-fill', color: '#8b5cf6', bg: '#ede9fe' },
+    { label: 'Total Doctors', value: stats.doctors, icon: 'bi-heart-pulse-fill', color: 'var(--success)', bg: 'var(--moss-100)' },
+    { label: 'Total Patients', value: stats.patients, icon: 'bi-people-fill', color: 'var(--primary)', bg: 'var(--sage-100)' },
+    { label: 'New Doctors (24h)', value: stats.last24h, icon: 'bi-person-plus-fill', color: 'var(--warning)', bg: 'var(--honey-100)' },
+    { label: 'Pending Bookings', value: requests?.numOfPendingRequest ?? 0, icon: 'bi-clock-fill', color: 'var(--primary)', bg: 'var(--sage-100)' },
   ];
 
   return (
@@ -78,15 +78,15 @@ const AdminOverview: React.FC = () => {
         {statCards.map(c => (
           <div key={c.label} className="col-6 col-xl-3">
             <div style={{
-              background: 'white', borderRadius: 16, padding: '20px',
-              border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 16,
+              background: 'var(--surface)', borderRadius: 'var(--r-lg)', padding: '20px',
+              border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 16,
             }}>
-              <div style={{ width: 48, height: 48, borderRadius: 12, background: c.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 48, height: 48, borderRadius: 'var(--r-md)', background: c.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <i className={`bi ${c.icon}`} style={{ fontSize: 22, color: c.color }}></i>
               </div>
               <div>
-                <div style={{ fontSize: 26, fontWeight: 700, fontFamily: 'Sora', color: '#0f172a', lineHeight: 1 }}>{c.value}</div>
-                <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{c.label}</div>
+                <div style={{ fontSize: 26, fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--ink)', lineHeight: 1 }}>{c.value}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{c.label}</div>
               </div>
             </div>
           </div>
@@ -104,8 +104,8 @@ const AdminOverview: React.FC = () => {
             <div key={r.label} className="col-4">
               <div className="veezta-card p-3 text-center">
                 <span className={`status-badge ${r.cls}`}><i className={`bi ${r.icon} me-1`}></i>{r.label}</span>
-                <div style={{ fontSize: 28, fontWeight: 700, fontFamily: 'Sora', marginTop: 8 }}>{r.val}</div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>bookings</div>
+                <div style={{ fontSize: 28, fontWeight: 700, fontFamily: 'var(--font-display)', marginTop: 8 }}>{r.val}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>bookings</div>
               </div>
             </div>
           ))}
@@ -116,7 +116,7 @@ const AdminOverview: React.FC = () => {
         {/* Top Specializations */}
         <div className="col-md-6">
           <div className="veezta-card p-4 h-100">
-            <h6 style={{ fontFamily: 'Sora', fontWeight: 600, marginBottom: 16 }}>
+            <h6 style={{ fontWeight: 600, marginBottom: 16 }}>
               <i className="bi bi-bar-chart-fill me-2 text-primary"></i>Top Specializations
             </h6>
             {topSpecs.map((s, i) => {
@@ -126,10 +126,10 @@ const AdminOverview: React.FC = () => {
                 <div key={i} className="mb-3">
                   <div className="d-flex justify-content-between mb-1">
                     <span style={{ fontSize: 13, fontWeight: 500 }}>{s.specalizationName}</span>
-                    <span style={{ fontSize: 13, color: '#64748b' }}>{s.requestCount} bookings</span>
+                    <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{s.requestCount} bookings</span>
                   </div>
-                  <div style={{ height: 6, background: '#e2e8f0', borderRadius: 4 }}>
-                    <div style={{ height: '100%', width: `${pct}%`, background: 'linear-gradient(90deg, #2563eb, #06b6d4)', borderRadius: 4, transition: 'width 0.5s ease' }}></div>
+                  <div style={{ height: 6, background: 'var(--border)', borderRadius: 4 }}>
+                    <div style={{ height: '100%', width: `${pct}%`, background: 'var(--primary)', borderRadius: 4, transition: 'width 0.5s ease' }}></div>
                   </div>
                 </div>
               );
@@ -140,13 +140,13 @@ const AdminOverview: React.FC = () => {
         {/* Top Doctors */}
         <div className="col-md-6">
           <div className="veezta-card p-4 h-100">
-            <h6 style={{ fontFamily: 'Sora', fontWeight: 600, marginBottom: 16 }}>
+            <h6 style={{ fontWeight: 600, marginBottom: 16 }}>
               <i className="bi bi-trophy-fill me-2 text-warning"></i>Top Doctors
             </h6>
             {topDocs.slice(0, 5).map((d, i) => (
               <div key={i} className="d-flex align-items-center gap-3 mb-3">
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: i < 3 ? '#fef3c7' : '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: i < 3 ? '#92400e' : '#64748b' }}>#{i + 1}</span>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: i < 3 ? 'var(--honey-100)' : 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: i < 3 ? 'var(--honey-600)' : 'var(--text-secondary)' }}>#{i + 1}</span>
                 </div>
                 <div className="avatar" style={{ width: 36, height: 36, flexShrink: 0 }}>
                   {d.image
@@ -156,9 +156,9 @@ const AdminOverview: React.FC = () => {
                 </div>
                 <div className="flex-grow-1">
                   <div style={{ fontSize: 13, fontWeight: 600 }}>{d.fullName}</div>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>{d.specilization}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{d.specilization}</div>
                 </div>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#2563eb' }}>{d.requestCount}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--primary)' }}>{d.requestCount}</span>
               </div>
             ))}
           </div>
@@ -240,7 +240,7 @@ const AdminDoctors: React.FC = () => {
       <div className="veezta-card p-4">
         <div className="mb-3">
           <div className="input-group" style={{ maxWidth: 320 }}>
-            <span className="input-group-text" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRight: 'none' }}>
+            <span className="input-group-text" style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRight: 'none' }}>
               <i className="bi bi-search text-muted"></i>
             </span>
             <input className="form-control" placeholder="Search doctors..." value={search}
@@ -272,13 +272,13 @@ const AdminDoctors: React.FC = () => {
                         </div>
                         <div>
                           <div style={{ fontWeight: 600, fontSize: 14 }}>{d.fullName}</div>
-                          <div style={{ fontSize: 12, color: '#64748b' }}>{d.email}</div>
+                          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{d.email}</div>
                         </div>
                       </div>
                     </td>
                     <td><span className="badge bg-primary bg-opacity-10 text-primary rounded-pill">{d.specilization}</span></td>
-                    <td style={{ fontSize: 13, color: '#64748b' }}>{d.phoneNumber}</td>
-                    <td style={{ fontSize: 13, color: '#64748b' }}>{d.gender}</td>
+                    <td style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{d.phoneNumber}</td>
+                    <td style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{d.gender}</td>
                     <td>
                       <button className="btn btn-sm btn-outline-danger rounded-pill" onClick={() => handleDelete(d.email, i)}>
                         <i className="bi bi-trash3 me-1"></i>Delete
@@ -291,10 +291,9 @@ const AdminDoctors: React.FC = () => {
           </div>
         )}
 
-        {/* Pagination */}
         {total > pageSize && (
           <div className="d-flex align-items-center justify-content-between mt-3">
-            <span style={{ fontSize: 13, color: '#64748b' }}>
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
               Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)} of {total}
             </span>
             <div className="btn-group btn-group-sm">
@@ -311,11 +310,11 @@ const AdminDoctors: React.FC = () => {
 
       {/* Add Doctor Modal */}
       {showModal && (
-        <div className="modal d-block" style={{ background: 'rgba(0,0,0,0.5)' }}>
+        <div className="modal d-block" style={{ background: 'rgba(31,42,36,0.32)' }}>
           <div className="modal-dialog modal-dialog-centered modal-lg">
-            <div className="modal-content" style={{ borderRadius: 20, border: 'none' }}>
+            <div className="modal-content">
               <div className="modal-header border-0 pb-0">
-                <h5 className="modal-title" style={{ fontFamily: 'Sora', fontWeight: 700 }}>Add New Doctor</h5>
+                <h5 className="modal-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 400 }}>Add New Doctor</h5>
                 <button className="btn-close" onClick={() => setShowModal(false)}></button>
               </div>
               <div className="modal-body">
@@ -373,7 +372,7 @@ const AdminDoctors: React.FC = () => {
                     </div>
                   </div>
                   {formError && (
-                    <div className="alert alert-danger py-2 mt-3" style={{ fontSize: 13, borderRadius: 10 }}>
+                    <div className="alert alert-danger py-2 mt-3" style={{ fontSize: 13, borderRadius: 'var(--r-sm)' }}>
                       <i className="bi bi-exclamation-circle me-2"></i>{formError}
                     </div>
                   )}
@@ -420,7 +419,7 @@ const AdminPatients: React.FC = () => {
       <div className="veezta-card p-4">
         <div className="mb-3">
           <div className="input-group" style={{ maxWidth: 320 }}>
-            <span className="input-group-text" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRight: 'none' }}>
+            <span className="input-group-text" style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRight: 'none' }}>
               <i className="bi bi-search text-muted"></i>
             </span>
             <input className="form-control" placeholder="Search patients..." value={search}
@@ -447,13 +446,13 @@ const AdminPatients: React.FC = () => {
                           </div>
                           <div>
                             <div style={{ fontWeight: 600, fontSize: 14 }}>{p.fullName}</div>
-                            <div style={{ fontSize: 12, color: '#64748b' }}>{p.email}</div>
+                            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{p.email}</div>
                           </div>
                         </div>
                       </td>
-                      <td style={{ fontSize: 13, color: '#64748b' }}>{p.phoneNumber}</td>
-                      <td style={{ fontSize: 13, color: '#64748b' }}>{p.dateOfBirth}</td>
-                      <td style={{ fontSize: 13, color: '#64748b' }}>{p.gender}</td>
+                      <td style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{p.phoneNumber}</td>
+                      <td style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{p.dateOfBirth}</td>
+                      <td style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{p.gender}</td>
                     </tr>
                   ))}
               </tbody>
@@ -462,7 +461,7 @@ const AdminPatients: React.FC = () => {
         )}
         {total > pageSize && (
           <div className="d-flex align-items-center justify-content-between mt-3">
-            <span style={{ fontSize: 13, color: '#64748b' }}>
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
               Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)} of {total}
             </span>
             <div className="btn-group btn-group-sm">
@@ -552,13 +551,13 @@ const AdminCoupons: React.FC = () => {
       </div>
 
       {success && (
-        <div className="alert alert-success d-flex align-items-center gap-2" style={{ borderRadius: 12 }}>
+        <div className="alert alert-success d-flex align-items-center gap-2" style={{ borderRadius: 'var(--r-md)' }}>
           <i className="bi bi-check-circle-fill"></i>{success}
           <button className="btn-close ms-auto" onClick={() => setSuccess('')}></button>
         </div>
       )}
       {error && (
-        <div className="alert alert-danger d-flex align-items-center gap-2" style={{ borderRadius: 12 }}>
+        <div className="alert alert-danger d-flex align-items-center gap-2" style={{ borderRadius: 'var(--r-md)' }}>
           <i className="bi bi-exclamation-triangle-fill"></i>{error}
           <button className="btn-close ms-auto" onClick={() => setError('')}></button>
         </div>
@@ -567,7 +566,7 @@ const AdminCoupons: React.FC = () => {
       {listLoading ? <LoadingSpinner text="Loading coupons..." /> : (
         <div className="veezta-card p-4">
           {coupons.length === 0 ? (
-            <div className="text-center py-5" style={{ color: '#94a3b8' }}>
+            <div className="text-center py-5" style={{ color: 'var(--text-muted)' }}>
               <i className="bi bi-tag" style={{ fontSize: 48 }}></i>
               <p className="mt-3">No coupons yet. Create your first one above.</p>
             </div>
@@ -575,7 +574,7 @@ const AdminCoupons: React.FC = () => {
             <div className="table-responsive">
               <table className="table align-middle mb-0">
                 <thead>
-                  <tr style={{ fontSize: 13, color: '#64748b' }}>
+                  <tr style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
                     <th>Name</th>
                     <th>Code Value</th>
                     <th>Status</th>
@@ -624,11 +623,11 @@ const AdminCoupons: React.FC = () => {
       )}
 
       {showModal && (
-        <div className="modal d-block" style={{ background: 'rgba(0,0,0,0.5)' }}>
+        <div className="modal d-block" style={{ background: 'rgba(31,42,36,0.32)' }}>
           <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content" style={{ borderRadius: 20, border: 'none' }}>
+            <div className="modal-content">
               <div className="modal-header border-0">
-                <h5 className="modal-title" style={{ fontFamily: 'Sora', fontWeight: 700 }}>Create Coupon</h5>
+                <h5 className="modal-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 400 }}>Create Coupon</h5>
                 <button className="btn-close" onClick={() => setShowModal(false)}></button>
               </div>
               <div className="modal-body">
@@ -725,13 +724,13 @@ const AdminSpecializations: React.FC = () => {
       </div>
 
       {error && (
-        <div className="alert alert-danger d-flex align-items-center gap-2" style={{ borderRadius: 12 }}>
+        <div className="alert alert-danger d-flex align-items-center gap-2" style={{ borderRadius: 'var(--r-md)' }}>
           <i className="bi bi-exclamation-circle-fill"></i>{error}
           <button className="btn-close ms-auto" onClick={() => setError('')}></button>
         </div>
       )}
       {success && (
-        <div className="alert alert-success d-flex align-items-center gap-2" style={{ borderRadius: 12 }}>
+        <div className="alert alert-success d-flex align-items-center gap-2" style={{ borderRadius: 'var(--r-md)' }}>
           <i className="bi bi-check-circle-fill"></i>{success}
           <button className="btn-close ms-auto" onClick={() => setSuccess('')}></button>
         </div>
@@ -739,7 +738,7 @@ const AdminSpecializations: React.FC = () => {
 
       {/* Add form */}
       <div className="veezta-card p-4 mb-4">
-        <h6 style={{ fontFamily: 'Sora', fontWeight: 600, marginBottom: 16 }}>
+        <h6 style={{ fontWeight: 600, marginBottom: 16 }}>
           <i className="bi bi-plus-circle me-2 text-primary"></i>Add Specialization
         </h6>
         <form onSubmit={handleAdd} className="d-flex gap-2">
@@ -759,27 +758,27 @@ const AdminSpecializations: React.FC = () => {
 
       {/* List */}
       <div className="veezta-card p-4">
-        <h6 style={{ fontFamily: 'Sora', fontWeight: 600, marginBottom: 16 }}>
+        <h6 style={{ fontWeight: 600, marginBottom: 16 }}>
           <i className="bi bi-list-ul me-2 text-primary"></i>All Specializations ({specs.length})
         </h6>
         {loading ? <LoadingSpinner /> : (
           <div className="row g-2">
             {specs.length === 0 ? (
-              <div className="col-12 text-center py-4" style={{ color: '#94a3b8' }}>
+              <div className="col-12 text-center py-4" style={{ color: 'var(--text-muted)' }}>
                 <i className="bi bi-inbox" style={{ fontSize: 40 }}></i>
                 <p className="mt-2 mb-0">No specializations yet. Add one above.</p>
               </div>
             ) : specs.map(s => (
               <div key={s.specializationId} className="col-md-4 col-lg-3">
                 <div className="d-flex align-items-center justify-content-between p-3"
-                  style={{ background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+                  style={{ background: 'var(--bg)', borderRadius: 'var(--r-md)', border: '1px solid var(--border)' }}>
                   <span style={{ fontWeight: 500, fontSize: 14 }}>
                     <i className="bi bi-hospital me-2 text-primary" style={{ fontSize: 13 }}></i>
                     {s.specializationName}
                   </span>
                   <button
                     className="btn btn-sm btn-outline-danger"
-                    style={{ borderRadius: 8, padding: '2px 8px' }}
+                    style={{ borderRadius: 'var(--r-sm)', padding: '2px 8px' }}
                     disabled={deletingId === s.specializationId}
                     onClick={() => handleDelete(s.specializationId, s.specializationName)}
                   >

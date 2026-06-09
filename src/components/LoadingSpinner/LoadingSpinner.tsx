@@ -5,7 +5,7 @@ const LoadingSpinner: React.FC<{ text?: string }> = ({ text = 'Loading...' }) =>
     <div className="spinner-border text-primary" style={{ width: 40, height: 40 }} role="status">
       <span className="visually-hidden">Loading...</span>
     </div>
-    <span style={{ color: '#64748b', fontSize: 14, fontWeight: 500 }}>{text}</span>
+    <span style={{ color: 'var(--text-secondary)', fontSize: 14, fontWeight: 500 }}>{text}</span>
   </div>
 );
 

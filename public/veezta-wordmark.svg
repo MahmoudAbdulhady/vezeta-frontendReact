@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 64" width="240" height="64" role="img" aria-label="Veezta wordmark">
+  <rect x="4" y="14" width="36" height="36" rx="9" fill="#5C7A6B"></rect>
+  <rect x="10" y="24" width="24" height="1.6" rx="0.8" fill="#FBF8F2" opacity="0.45"></rect>
+  <rect x="10" y="30" width="24" height="1.6" rx="0.8" fill="#FBF8F2" opacity="0.45"></rect>
+  <rect x="10" y="36" width="24" height="1.6" rx="0.8" fill="#FBF8F2" opacity="0.45"></rect>
+  <circle cx="30" cy="36" r="3.2" fill="#C58A3D"></circle>
+  <text x="54" y="47" font-family="&#39;Instrument Serif&#39;, Georgia, serif" font-size="38" letter-spacing="-0.02em" fill="#1F2A24">Veezta<tspan fill="#C58A3D">.</tspan></text>
+</svg>

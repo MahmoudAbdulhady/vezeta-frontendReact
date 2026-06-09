@@ -47,9 +47,9 @@ const LoginPage: React.FC = () => {
     Patient: 'bi-person-fill',
   };
   const roleColor: Record<UserRole, string> = {
-    Admin: '#ef4444',
-    Doctor: '#10b981',
-    Patient: '#2563eb',
+    Admin: 'var(--danger)',
+    Doctor: 'var(--success)',
+    Patient: 'var(--primary)',
   };
 
   return (
@@ -58,17 +58,17 @@ const LoginPage: React.FC = () => {
         {/* Logo */}
         <div className="text-center mb-4">
           <div style={{
-            width: 52, height: 52, borderRadius: 14,
-            background: 'linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)',
+            width: 52, height: 52, borderRadius: 'var(--r-md)',
+            background: 'var(--primary)',
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             marginBottom: 12,
           }}>
             <i className="bi bi-heart-pulse-fill text-white" style={{ fontSize: 24 }}></i>
           </div>
-          <h1 style={{ fontFamily: 'Sora', fontWeight: 700, fontSize: 28, color: '#0f172a', marginBottom: 4 }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 400, fontSize: 28, color: 'var(--ink)', marginBottom: 4 }}>
             Welcome back
           </h1>
-          <p style={{ color: '#64748b', fontSize: 14 }}>Sign in to your Veezta account</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Sign in to your Veezta account</p>
         </div>
 
         <div className="auth-card">
@@ -83,10 +83,10 @@ const LoginPage: React.FC = () => {
                   onClick={() => setRole(r)}
                   className="flex-fill btn btn-sm"
                   style={{
-                    borderRadius: 10,
-                    border: `2px solid ${role === r ? roleColor[r] : '#e2e8f0'}`,
-                    background: role === r ? `${roleColor[r]}15` : 'white',
-                    color: role === r ? roleColor[r] : '#64748b',
+                    borderRadius: 'var(--r-sm)',
+                    border: `2px solid ${role === r ? roleColor[r] : 'var(--border)'}`,
+                    background: role === r ? `color-mix(in srgb, ${roleColor[r]} 10%, transparent)` : 'var(--surface)',
+                    color: role === r ? roleColor[r] : 'var(--text-secondary)',
                     fontWeight: 600,
                     fontSize: 13,
                     padding: '8px 0',
@@ -128,7 +128,7 @@ const LoginPage: React.FC = () => {
                 <button
                   type="button"
                   className="btn btn-outline-secondary"
-                  style={{ borderRadius: '0 10px 10px 0', borderColor: '#e2e8f0' }}
+                  style={{ borderRadius: '0 var(--r-sm) var(--r-sm) 0', borderColor: 'var(--border)' }}
                   onClick={() => setShowPass(v => !v)}
                 >
                   <i className={`bi ${showPass ? 'bi-eye-slash' : 'bi-eye'}`}></i>
@@ -137,7 +137,7 @@ const LoginPage: React.FC = () => {
             </div>
 
             {error && (
-              <div className="alert alert-danger py-2 px-3 d-flex align-items-center gap-2" style={{ borderRadius: 10, fontSize: 13 }}>
+              <div className="alert alert-danger py-2 px-3 d-flex align-items-center gap-2" style={{ borderRadius: 'var(--r-sm)', fontSize: 13 }}>
                 <i className="bi bi-exclamation-circle-fill"></i>{error}
               </div>
             )}
@@ -146,7 +146,7 @@ const LoginPage: React.FC = () => {
               type="submit"
               className="btn btn-primary w-100 mt-1"
               disabled={loading}
-              style={{ borderRadius: 10, padding: '11px', fontWeight: 600, fontSize: 15 }}
+              style={{ borderRadius: 'var(--r-sm)', padding: '11px', fontWeight: 600, fontSize: 15 }}
             >
               {loading ? (
                 <><span className="spinner-border spinner-border-sm me-2"></span>Signing in...</>
@@ -155,30 +155,30 @@ const LoginPage: React.FC = () => {
           </form>
 
           {/* Demo credentials */}
-          <div className="mt-4 p-3" style={{ background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+          <div className="mt-4 p-3" style={{ background: 'var(--bg)', borderRadius: 'var(--r-md)', border: '1px solid var(--border)' }}>
             <div className="d-flex align-items-center justify-content-between mb-1">
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 Demo credentials ({role})
               </span>
               <button
                 type="button"
                 className="btn btn-sm btn-outline-primary"
-                style={{ fontSize: 11, padding: '2px 10px', borderRadius: 8 }}
+                style={{ fontSize: 11, padding: '2px 10px', borderRadius: 'var(--r-sm)' }}
                 onClick={fillDemo}
               >
                 <i className="bi bi-lightning-fill me-1"></i>Auto-fill
               </button>
             </div>
-            <div style={{ fontSize: 12, color: '#475569' }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
               <div><i className="bi bi-envelope me-1"></i>{DEMO_ACCOUNTS[role].email}</div>
               <div><i className="bi bi-key me-1"></i>{DEMO_ACCOUNTS[role].password}</div>
             </div>
           </div>
 
           {role === 'Patient' && (
-            <p className="text-center mt-3 mb-0" style={{ fontSize: 13, color: '#64748b' }}>
+            <p className="text-center mt-3 mb-0" style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
               Don't have an account?{' '}
-              <Link to="/register" style={{ color: '#2563eb', fontWeight: 600, textDecoration: 'none' }}>
+              <Link to="/register" style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>
                 Register here
               </Link>
             </p>

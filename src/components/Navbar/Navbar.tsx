@@ -38,17 +38,17 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg sticky-top" style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e9ecef', zIndex: 1050 }}>
+    <nav className="navbar navbar-expand-lg sticky-top" style={{ zIndex: 1050 }}>
       <div className="container-xl">
         <Link className="navbar-brand d-flex align-items-center gap-2 text-decoration-none" to={user ? dashboardLink : '/'}>
           <div style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: 'linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)',
+            width: 36, height: 36, borderRadius: 'var(--r-sm)',
+            background: 'var(--primary)',
             display: 'flex', alignItems: 'center', justifyContent: 'center'
           }}>
             <i className="bi bi-heart-pulse-fill text-white" style={{ fontSize: 18 }}></i>
           </div>
-          <span className="fw-700" style={{ fontFamily: 'Sora, sans-serif', fontWeight: 700, fontSize: 20, color: '#0f172a', letterSpacing: '-0.3px' }}>
+          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 400, fontSize: 22, color: 'var(--ink)', letterSpacing: '-0.02em' }}>
             Veezta
           </span>
         </Link>
@@ -62,25 +62,25 @@ const Navbar: React.FC = () => {
             {user ? (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link fw-500" to={dashboardLink} style={{ color: '#475569', fontWeight: 500 }}>
+                  <Link className="nav-link fw-500" to={dashboardLink} style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>
                     <i className="bi bi-grid-1x2 me-1"></i>Dashboard
                   </Link>
                 </li>
                 <li className="nav-item d-flex align-items-center gap-2 px-3">
                   {avatarUrl ? (
                     <img src={avatarUrl} alt="avatar"
-                      style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover', border: '2px solid #e9ecef' }} />
+                      style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--border)' }} />
                   ) : (
                     <div style={{
                       width: 34, height: 34, borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #2563eb, #06b6d4)',
+                      background: 'var(--primary)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center'
                     }}>
                       <i className="bi bi-person-fill text-white" style={{ fontSize: 16 }}></i>
                     </div>
                   )}
                   <div className="d-none d-lg-block">
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', lineHeight: 1.2 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', lineHeight: 1.2 }}>
                       {user.fullName || user.email}
                     </div>
                     <span className={`badge ${roleColor[role!] || 'bg-secondary'} rounded-pill`} style={{ fontSize: 10 }}>
@@ -100,7 +100,7 @@ const Navbar: React.FC = () => {
             ) : (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/login" style={{ color: '#475569', fontWeight: 500 }}>Sign In</Link>
+                  <Link className="nav-link" to="/login" style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Sign In</Link>
                 </li>
                 <li className="nav-item">
                   <Link className="btn btn-primary rounded-pill px-4" to="/register">Get Started</Link>

@@ -20,7 +20,7 @@ const DoctorSidebar: React.FC = () => {
   return (
     <div className="sidebar d-none d-md-block">
       <div className="px-4 mb-3">
-        <span style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Navigation</span>
+        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Navigation</span>
       </div>
       {links.map(l => (
         <Link key={l.to} to={l.to} className={`sidebar-link ${loc.pathname === l.to ? 'active' : ''}`}>
@@ -55,18 +55,18 @@ const DoctorOverview: React.FC = () => {
       </div>
       <div className="row g-3 mb-4">
         {[
-          { label: "Today's Appointments", value: today.length, icon: 'bi-calendar-day-fill', color: '#2563eb', bg: '#dbeafe' },
-          { label: 'Total Appointments', value: bookings.length, icon: 'bi-calendar-check-fill', color: '#10b981', bg: '#d1fae5' },
-          { label: 'Upcoming Patients', value: bookings.length, icon: 'bi-people-fill', color: '#f59e0b', bg: '#fef3c7' },
+          { label: "Today's Appointments", value: today.length, icon: 'bi-calendar-day-fill', color: 'var(--primary)', bg: 'var(--sage-100)' },
+          { label: 'Total Appointments', value: bookings.length, icon: 'bi-calendar-check-fill', color: 'var(--success)', bg: 'var(--moss-100)' },
+          { label: 'Upcoming Patients', value: bookings.length, icon: 'bi-people-fill', color: 'var(--warning)', bg: 'var(--honey-100)' },
         ].map(c => (
           <div key={c.label} className="col-md-4">
-            <div style={{ background: 'white', borderRadius: 16, padding: '20px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 16 }}>
-              <div style={{ width: 48, height: 48, borderRadius: 12, background: c.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ background: 'var(--surface)', borderRadius: 'var(--r-lg)', padding: '20px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{ width: 48, height: 48, borderRadius: 'var(--r-md)', background: c.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <i className={`bi ${c.icon}`} style={{ fontSize: 22, color: c.color }}></i>
               </div>
               <div>
-                <div style={{ fontSize: 28, fontWeight: 700, fontFamily: 'Sora', color: '#0f172a', lineHeight: 1 }}>{c.value}</div>
-                <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{c.label}</div>
+                <div style={{ fontSize: 28, fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--ink)', lineHeight: 1 }}>{c.value}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>{c.label}</div>
               </div>
             </div>
           </div>
@@ -75,11 +75,11 @@ const DoctorOverview: React.FC = () => {
 
       {/* Today's patients */}
       <div className="veezta-card p-4">
-        <h6 style={{ fontFamily: 'Sora', fontWeight: 600, marginBottom: 16 }}>
+        <h6 style={{ fontWeight: 600, marginBottom: 16 }}>
           <i className="bi bi-calendar-day me-2 text-primary"></i>Today's Appointments
         </h6>
         {today.length === 0 ? (
-          <div className="text-center py-4" style={{ color: '#94a3b8' }}>
+          <div className="text-center py-4" style={{ color: 'var(--text-muted)' }}>
             <i className="bi bi-calendar-x" style={{ fontSize: 40 }}></i>
             <p className="mt-2 mb-0">No appointments today</p>
           </div>
@@ -87,15 +87,15 @@ const DoctorOverview: React.FC = () => {
           <div className="row g-3">
             {today.map((b, i) => (
               <div key={i} className="col-md-6">
-                <div style={{ background: '#f8fafc', borderRadius: 12, padding: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ background: 'var(--bg)', borderRadius: 'var(--r-md)', padding: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div className="avatar" style={{ width: 44, height: 44 }}>
                     {b.image ? <img src={getImageUrl(b.image)!} alt={b.patientName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                       : <span style={{ color: 'white', fontWeight: 700 }}>{b.patientName[0]}</span>}
                   </div>
                   <div>
                     <div style={{ fontWeight: 600, fontSize: 14 }}>{b.patientName}</div>
-                    <div style={{ fontSize: 12, color: '#64748b' }}>{b.startTime} – {b.endTime}</div>
-                    <div style={{ fontSize: 11, color: '#94a3b8' }}>Age: {b.age} • {b.phoneNumber}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{b.startTime} – {b.endTime}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Age: {b.age} • {b.phoneNumber}</div>
                   </div>
                 </div>
               </div>
@@ -131,7 +131,6 @@ const DoctorAppointments: React.FC = () => {
       await confirmCheckup(bookingId);
       load();
     } catch {
-      // silently reload so the latest status is always shown
       load();
     } finally {
       setConfirmingId(null);
@@ -168,9 +167,9 @@ const DoctorAppointments: React.FC = () => {
                           </div>
                         </td>
                         <td style={{ fontSize: 13 }}>{b.day}</td>
-                        <td style={{ fontSize: 13, color: '#64748b' }}>{b.startTime} – {b.endTime}</td>
-                        <td style={{ fontSize: 13, color: '#64748b' }}>{b.phoneNumber}</td>
-                        <td style={{ fontSize: 13, color: '#64748b' }}>{b.age}</td>
+                        <td style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{b.startTime} – {b.endTime}</td>
+                        <td style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{b.phoneNumber}</td>
+                        <td style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{b.age}</td>
                         <td>
                           <span className={`badge rounded-pill ${statusClass}`} style={{ fontSize: 11 }}>
                             {b.bookingStatus ?? 'Unknown'}
@@ -198,7 +197,7 @@ const DoctorAppointments: React.FC = () => {
         )}
         {total > pageSize && (
           <div className="d-flex align-items-center justify-content-between mt-3">
-            <span style={{ fontSize: 13, color: '#64748b' }}>Showing page {page}</span>
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Showing page {page}</span>
             <div className="btn-group btn-group-sm">
               <button className="btn btn-outline-secondary" disabled={page === 1} onClick={() => setPage(p => p - 1)}>
                 <i className="bi bi-chevron-left"></i>
@@ -299,39 +298,39 @@ const DoctorSchedule: React.FC = () => {
       </div>
 
       {success && (
-        <div className="alert alert-success d-flex align-items-center gap-2" style={{ borderRadius: 12 }}>
+        <div className="alert alert-success d-flex align-items-center gap-2" style={{ borderRadius: 'var(--r-md)' }}>
           <i className="bi bi-check-circle-fill"></i>{success}
           <button className="btn-close ms-auto" onClick={() => setSuccess('')}></button>
         </div>
       )}
       {error && (
-        <div className="alert alert-danger d-flex align-items-center gap-2" style={{ borderRadius: 12 }}>
+        <div className="alert alert-danger d-flex align-items-center gap-2" style={{ borderRadius: 'var(--r-md)' }}>
           <i className="bi bi-exclamation-circle-fill"></i>{error}
           <button className="btn-close ms-auto" onClick={() => setError('')}></button>
         </div>
       )}
 
       {loadingSchedule ? <LoadingSpinner /> : schedule.length === 0 ? (
-        <div className="veezta-card p-4 text-center" style={{ color: '#94a3b8' }}>
+        <div className="veezta-card p-4 text-center" style={{ color: 'var(--text-muted)' }}>
           <i className="bi bi-clock-history" style={{ fontSize: 48 }}></i>
           <p className="mt-3">No slots yet. Use the button above to add available time slots.</p>
         </div>
       ) : (
         <div className="veezta-card p-0" style={{ overflow: 'hidden' }}>
           <table className="table table-hover mb-0">
-            <thead style={{ background: '#f8fafc' }}>
+            <thead style={{ background: 'var(--bg)' }}>
               <tr>
-                <th style={{ padding: '14px 20px', fontWeight: 600, color: '#64748b', fontSize: 13 }}>Day</th>
-                <th style={{ padding: '14px 20px', fontWeight: 600, color: '#64748b', fontSize: 13 }}>Time</th>
-                <th style={{ padding: '14px 20px', fontWeight: 600, color: '#64748b', fontSize: 13 }}>Status</th>
-                <th style={{ padding: '14px 20px', fontWeight: 600, color: '#64748b', fontSize: 13 }}></th>
+                <th style={{ padding: '14px 20px', fontWeight: 600, color: 'var(--text-secondary)', fontSize: 13 }}>Day</th>
+                <th style={{ padding: '14px 20px', fontWeight: 600, color: 'var(--text-secondary)', fontSize: 13 }}>Time</th>
+                <th style={{ padding: '14px 20px', fontWeight: 600, color: 'var(--text-secondary)', fontSize: 13 }}>Status</th>
+                <th style={{ padding: '14px 20px', fontWeight: 600, color: 'var(--text-secondary)', fontSize: 13 }}></th>
               </tr>
             </thead>
             <tbody>
               {schedule.map(slot => (
                 <tr key={slot.appointmentId}>
                   <td style={{ padding: '14px 20px', fontWeight: 500 }}>{DAY_LABEL[String(slot.day)] ?? slot.day}</td>
-                  <td style={{ padding: '14px 20px', color: '#475569' }}>{slot.startTime} – {slot.endTime}</td>
+                  <td style={{ padding: '14px 20px', color: 'var(--text-secondary)' }}>{slot.startTime} – {slot.endTime}</td>
                   <td style={{ padding: '14px 20px' }}>
                     {slot.isBooked
                       ? <span className="badge bg-warning text-dark rounded-pill">Booked</span>
@@ -353,11 +352,11 @@ const DoctorSchedule: React.FC = () => {
       )}
 
       {showModal && (
-        <div className="modal d-block" style={{ background: 'rgba(0,0,0,0.5)' }}>
+        <div className="modal d-block" style={{ background: 'rgba(31,42,36,0.32)' }}>
           <div className="modal-dialog modal-dialog-centered modal-lg">
-            <div className="modal-content" style={{ borderRadius: 20, border: 'none' }}>
+            <div className="modal-content">
               <div className="modal-header border-0">
-                <h5 className="modal-title" style={{ fontFamily: 'Sora', fontWeight: 700 }}>Add Appointment Slots</h5>
+                <h5 className="modal-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 400 }}>Add Appointment Slots</h5>
                 <button className="btn-close" onClick={() => setShowModal(false)}></button>
               </div>
               <div className="modal-body">
@@ -385,11 +384,11 @@ const DoctorSchedule: React.FC = () => {
                         </select>
                         <input type="time" className="form-control" required value={s.startTime}
                           onChange={e => updateSlot(i, 'startTime', e.target.value)} />
-                        <span style={{ color: '#94a3b8' }}>–</span>
+                        <span style={{ color: 'var(--text-muted)' }}>–</span>
                         <input type="time" className="form-control" required value={s.endTime}
                           onChange={e => updateSlot(i, 'endTime', e.target.value)} />
                         {slots.length > 1 && (
-                          <button type="button" className="btn btn-sm btn-outline-danger" style={{ borderRadius: 8, flexShrink: 0 }} onClick={() => removeSlot(i)}>
+                          <button type="button" className="btn btn-sm btn-outline-danger" style={{ borderRadius: 'var(--r-sm)', flexShrink: 0 }} onClick={() => removeSlot(i)}>
                             <i className="bi bi-trash3"></i>
                           </button>
                         )}
@@ -397,7 +396,7 @@ const DoctorSchedule: React.FC = () => {
                     ))}
                   </div>
 
-                  {error && <div className="alert alert-danger py-2" style={{ fontSize: 13, borderRadius: 8 }}>{error}</div>}
+                  {error && <div className="alert alert-danger py-2" style={{ fontSize: 13, borderRadius: 'var(--r-sm)' }}>{error}</div>}
 
                   <div className="d-flex gap-2 justify-content-end">
                     <button type="button" className="btn btn-outline-secondary rounded-pill px-4" onClick={() => setShowModal(false)}>Cancel</button>
